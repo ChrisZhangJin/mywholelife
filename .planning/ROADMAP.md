@@ -108,7 +108,19 @@ Plans:
   3. The mid-session reload path (how a reinstalled skill becomes active in the running session) is explicitly defined and verified on the target Claude Code version.
   4. A single `long-term-memory.md` holds one structured entry (`name + hook + memId`) per long-term memory, sized to stay within a bounded ~1–5k token budget.
 
-**Plans**: TBD
+**Plans**: 3 plans
+Plans:
+**Wave 1**
+
+- [x] 03-01-PLAN.md — Store cold tier: klauspost/compress zstd helpers (seam) + structured long-term-memory.md index + Compress/Reheat bodies (verify-before-delete, access_time rules) + tests
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
+- [ ] 03-02-PLAN.md — `GET /agent/:id/remind?mem=` handler (validKey → Reheat → application/x-tar) + route wiring + httptest round-trip/400/404 + init-reflects-index
+
+**Wave 3** *(blocked on Wave 2 completion)*
+
+- [ ] 03-03-PLAN.md — Client `remind.sh` (untar + stdout echo + /reload-skills hint) + SKILL.md remind docs and mid-session reload story
 
 ### Phase 4: Dream Consolidation + Forgetting
 
@@ -134,6 +146,6 @@ Phases execute in numeric order: 0 → 1 → 2 → 3 → 4
 |-------|----------------|--------|-----------|
 | 0. Skill-Context Validation Spike | 3/3 | Complete    | 2026-07-26 |
 | 1. Storage Seam + Schema | 3/3 | Complete    | 2026-07-26 |
-| 2. Hot Path (Write + Init) | 3/3 | Complete   | 2026-07-26 |
-| 3. Cold Tier (Compress + Reheat) | 0/TBD | Not started | - |
+| 2. Hot Path (Write + Init) | 3/3 | Complete    | 2026-07-26 |
+| 3. Cold Tier (Compress + Reheat) | 1/3 | In Progress|  |
 | 4. Dream Consolidation + Forgetting | 0/TBD | Not started | - |

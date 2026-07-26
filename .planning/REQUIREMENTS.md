@@ -38,18 +38,18 @@ Requirements for initial release. Each maps to roadmap phases. The core loop (wr
 ### Recall / Reheat
 
 - [ ] **RECALL-01**: `GET /agent/{id}/remind?mem={memId}` returns the targeted long-term memory's skill folder (decompressed)
-- [ ] **RECALL-02**: A successful remind promotes the memory to `recent` by setting its access-time to now (the only operation that reverses the time arrow)
+- [x] **RECALL-02**: A successful remind promotes the memory to `recent` by setting its access-time to now (the only operation that reverses the time arrow)
 - [ ] **RECALL-03**: remind reinstalls the skill folder and the mid-session reload path (how the reinstalled skill becomes active) is explicitly defined and verified
 
 ### Long-Term Index
 
-- [ ] **INDEX-01**: A single `long-term-memory.md` holds one structured entry (`name + hook + memId`) per long-term memory, sized to stay within a bounded token budget (~1–5k)
+- [x] **INDEX-01**: A single `long-term-memory.md` holds one structured entry (`name + hook + memId`) per long-term memory, sized to stay within a bounded token budget (~1–5k)
 - [ ] **INDEX-02**: The index remains a structured list (never narrative prose); a validator asserts every stored memId maps to exactly one index entry before any dream output is committed
 
 ### Compression
 
-- [ ] **COMP-01**: Long-term memory compresses the whole skill folder to `.tar.zst`, leaving the brief/metadata uncompressed as the reminder
-- [ ] **COMP-02**: A source folder is deleted only after its compressed artifact is round-trip verified
+- [x] **COMP-01**: Long-term memory compresses the whole skill folder to `.tar.zst`, leaving the brief/metadata uncompressed as the reminder
+- [x] **COMP-02**: A source folder is deleted only after its compressed artifact is round-trip verified
 
 ### Dream Consolidation & Forgetting
 
@@ -107,12 +107,12 @@ Which phases cover which requirements. (Finalized by roadmapper — matches ROAD
 | INIT-01 | Phase 2 | Complete |
 | INIT-02 | Phase 2 | Complete |
 | CLIENT-01 | Phase 2 | Complete |
-| COMP-01 | Phase 3 | Pending |
-| COMP-02 | Phase 3 | Pending |
+| COMP-01 | Phase 3 | Complete |
+| COMP-02 | Phase 3 | Complete |
 | RECALL-01 | Phase 3 | Pending |
-| RECALL-02 | Phase 3 | Pending |
+| RECALL-02 | Phase 3 | Complete |
 | RECALL-03 | Phase 3 | Pending |
-| INDEX-01 | Phase 3 | Pending |
+| INDEX-01 | Phase 3 | Complete |
 | INDEX-02 | Phase 4 | Pending |
 | DREAM-01 | Phase 4 | Pending |
 | DREAM-02 | Phase 4 | Pending |

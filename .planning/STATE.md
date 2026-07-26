@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: verifying
-stopped_at: Phase 2 context gathered (--auto)
-last_updated: "2026-07-26T17:48:58.587Z"
+status: executing
+stopped_at: Phase 3 context gathered (--auto)
+last_updated: "2026-07-26T18:24:48.319Z"
 last_activity: 2026-07-26
 progress:
   total_phases: 5
   completed_phases: 3
-  total_plans: 9
-  completed_plans: 9
+  total_plans: 12
+  completed_plans: 10
   percent: 60
 ---
 
@@ -21,22 +21,22 @@ progress:
 See: .planning/PROJECT.md (updated 2026-07-25)
 
 **Core value:** An agent can leave, come back, and correctly recall who it is and what it has done — with the right project context reassembled at the right time, without drowning it in irrelevant history.
-**Current focus:** Phase 2 — Hot Path (Write + Init)
+**Current focus:** Phase 3 — Cold Tier (Compress + Reheat)
 
 ## Current Position
 
-Phase: 2 (Hot Path (Write + Init)) — EXECUTING
-Plan: 3 of 3
-Status: Phase complete — ready for verification
+Phase: 3 (Cold Tier (Compress + Reheat)) — EXECUTING
+Plan: 2 of 3
+Status: Ready to execute
 Last activity: 2026-07-26
 
-Progress: [██████████] 100%
+Progress: [████████░░] 83%
 
 ## Performance Metrics
 
 **Velocity:**
 
-- Total plans completed: 6
+- Total plans completed: 9
 - Average duration: -
 - Total execution time: 0 hours
 
@@ -46,6 +46,7 @@ Progress: [██████████] 100%
 |-------|-------|-------|----------|
 | 0 | 3 | - | - |
 | 1 | 3 | - | - |
+| 2 | 3 | - | - |
 
 **Recent Trend:**
 
@@ -62,6 +63,7 @@ Progress: [██████████] 100%
 | Phase 02 P01 | 12min | 2 tasks | 8 files |
 | Phase 02 P02 | 18min | 3 tasks | 7 files |
 | Phase 02 P03 | 12min | 2 tasks | 6 files |
+| Phase 03 P01 | 6min | 2 tasks | 8 files |
 
 ## Accumulated Context
 
@@ -94,6 +96,8 @@ Recent decisions affecting current work:
 - [Phase ?]: [Phase 02-02]: server computes project mem_id=YYYYMMDD-project (OQ-3), client sends only ?project=; long-term-memory.md kept as a stub slot for Phase 4
 - [Phase 02-03]: client is bash+curl+tar/unzip only, jq optional-only; agent.json parsed jq-free via grep/sed; register name sanitized to the server allowlist
 - [Phase 02-03]: SessionEnd hook is dumb transport (outbox -> push.sh -> clear); install.sh registers the correct session_end.sh path per mode (W3: CLAUDE_PROJECT_DIR local vs absolute HOME for --global), idempotent, never clobbers settings.json
+- [Phase 03]: Compress/Reheat verify against the persisted (re-read) .tar.zst/.tar, not in-memory bytes — strengthens D-02 and enables fault-injectable negative-path tests
+- [Phase 03]: zstd confined to store/zstd.go using one-shot EncodeAll/DecodeAll with a 32MB decompression cap (D-01 seam)
 
 ### Pending Todos
 
@@ -115,6 +119,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-26T17:48:17.005Z
-Stopped at: Phase 2 context gathered (--auto)
+Last session: 2026-07-26T18:23:51.734Z
+Stopped at: Phase 3 context gathered (--auto)
 Resume file: None
