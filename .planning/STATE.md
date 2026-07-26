@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: verifying
-stopped_at: Completed 00-02-PLAN.md
-last_updated: "2026-07-26T15:55:50.284Z"
+status: executing
+stopped_at: Phase 1 context gathered (--auto)
+last_updated: "2026-07-26T16:32:49.009Z"
 last_activity: 2026-07-26
 progress:
   total_phases: 5
   completed_phases: 1
-  total_plans: 3
-  completed_plans: 3
+  total_plans: 6
+  completed_plans: 4
   percent: 20
 ---
 
@@ -21,22 +21,22 @@ progress:
 See: .planning/PROJECT.md (updated 2026-07-25)
 
 **Core value:** An agent can leave, come back, and correctly recall who it is and what it has done — with the right project context reassembled at the right time, without drowning it in irrelevant history.
-**Current focus:** Phase 0 — Skill-Context Validation Spike
+**Current focus:** Phase 1 — Storage Seam + Schema
 
 ## Current Position
 
-Phase: 0 (Skill-Context Validation Spike) — EXECUTING
-Plan: 3 of 3
-Status: Phase complete — ready for verification
+Phase: 1 (Storage Seam + Schema) — EXECUTING
+Plan: 2 of 3
+Status: Ready to execute
 Last activity: 2026-07-26
 
-Progress: [██████████] 100%
+Progress: [███████░░░] 67%
 
 ## Performance Metrics
 
 **Velocity:**
 
-- Total plans completed: 0
+- Total plans completed: 3
 - Average duration: -
 - Total execution time: 0 hours
 
@@ -44,7 +44,7 @@ Progress: [██████████] 100%
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
-| - | - | - | - |
+| 0 | 3 | - | - |
 
 **Recent Trend:**
 
@@ -55,6 +55,7 @@ Progress: [██████████] 100%
 | Phase 00 P01 | 12min | 2 tasks | 3 files |
 | Phase 00 P02 | 6min | 2 tasks | 1 files |
 | Phase 00 P03 | 3min | 2 tasks | 3 files |
+| Phase 01 P01 | 2min | 2 tasks | 5 files |
 
 ## Accumulated Context
 
@@ -74,6 +75,8 @@ Recent decisions affecting current work:
 - [Phase 00]: Proxy anchor intentionally not measured -- naive clears the go/no-go bar so the shape-2 fallback is empirically unnecessary; VAL-02 documented from estimator data
 - [Phase 00]: GO on the skill-as-memory premise — calibrated naive N=20 = 6700 tok = 0.67% of 1M window, ~150x under the D-05 10% line; #14882 does NOT reproduce on CC 2.1.211 (catalog-only, 335 tok/skill)
 - [Phase 00]: Safe ceiling N=298 @1M / 59 @200k; T1 knob target N~20 (D-06); adopted shape = naive skill folder (D-07); proxy + merged recent-brief.md fallbacks pre-measured (VAL-02)
+- [Phase ?]: [Phase 01-01]: Storage seam established — modernc.org/sqlite blank-import confined to store/sqlite.go; MemoryStore/BlobStore contracts frozen for Phases 2-4
+- [Phase ?]: [Phase 01-01]: DSN _pragma= params + SetMaxOpenConns(1) + withTx (BEGIN IMMEDIATE) adopted for pool-wide pragma correctness and transactional access_time (D-07)
 
 ### Pending Todos
 
@@ -95,6 +98,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-26T15:55:28.120Z
-Stopped at: Completed 00-02-PLAN.md
+Last session: 2026-07-26T16:32:23.197Z
+Stopped at: Phase 1 context gathered (--auto)
 Resume file: None

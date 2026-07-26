@@ -60,7 +60,16 @@ Plans:
   3. `access-time` is the sole timestamp any lifecycle logic reads and it is updated in the same transaction on every access path (write, init, remind).
   4. `global recent` is pinned and exempt from aging/forgetting, and project memory is namespaced `YYYYMMDD-projectName` with a server-guaranteed no-collision key.
 
-**Plans**: TBD
+**Plans**: 3 plans
+Plans:
+**Wave 1**
+
+- [x] 01-01-PLAN.md — Bootstrap the Go module + define the MemoryStore/BlobStore contracts, schema.sql, and the confined DB-open path (Open + DSN pragmas + withTx)
+
+**Wave 2** *(blocked on Wave 1 completion; two parallel plans, disjoint files)*
+
+- [ ] 01-02-PLAN.md — Implement the full sqliteStore index surface (agents, memory CRUD, in-tx access-time, pinned exemption, YYYYMMDD collision, stubs) + tests + seam-enforcement test
+- [ ] 01-03-PLAN.md — Implement localBlobStore FS adapter (D-09 layout, rel_path confinement, path-traversal rejection) + tests
 
 ### Phase 2: Hot Path (Write + Init)
 
@@ -114,8 +123,8 @@ Phases execute in numeric order: 0 → 1 → 2 → 3 → 4
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 0. Skill-Context Validation Spike | 3/3 | Complete   | 2026-07-26 |
-| 1. Storage Seam + Schema | 0/TBD | Not started | - |
+| 0. Skill-Context Validation Spike | 3/3 | Complete    | 2026-07-26 |
+| 1. Storage Seam + Schema | 1/3 | In Progress|  |
 | 2. Hot Path (Write + Init) | 0/TBD | Not started | - |
 | 3. Cold Tier (Compress + Reheat) | 0/TBD | Not started | - |
 | 4. Dream Consolidation + Forgetting | 0/TBD | Not started | - |
