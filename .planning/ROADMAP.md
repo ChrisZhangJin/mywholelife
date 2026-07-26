@@ -84,7 +84,16 @@ Plans:
   3. `GET /agent/{id}/init` returns a single downloadable bundle of `global recent` + each recent project skill + `long-term-memory.md`, and the agent can unpack it into its memory dir and `.claude/skills/`.
   4. The `mywholelife` skill documents the service URL + init/remind usage and installs a `SessionEnd` hook — dumb transport only, using dependency-free `bash`/`curl`/`tar` — that triggers the curated upload.
 
-**Plans**: TBD
+**Plans**: 3 plans
+Plans:
+**Wave 1**
+
+- [ ] 02-01-PLAN.md — Server foundation: cobra CLI (serve + dream stub) + env Config + Gin router + register-first `POST /agent/register`
+
+**Wave 2** *(blocked on Wave 1; two parallel plans, disjoint files)*
+
+- [ ] 02-02-PLAN.md — Write + init hot loop: bundle package (tar validate/brief/zip transcode) + `POST /memory` + `GET /init` handlers + round-trip/404/traversal tests
+- [ ] 02-03-PLAN.md — `mywholelife` client skill: SKILL.md + init/push/session_end/install scripts + SessionEnd hook (dependency-free bash/curl/tar)
 
 ### Phase 3: Cold Tier (Compress + Reheat)
 
@@ -124,7 +133,7 @@ Phases execute in numeric order: 0 → 1 → 2 → 3 → 4
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 0. Skill-Context Validation Spike | 3/3 | Complete    | 2026-07-26 |
-| 1. Storage Seam + Schema | 3/3 | Complete   | 2026-07-26 |
-| 2. Hot Path (Write + Init) | 0/TBD | Not started | - |
+| 1. Storage Seam + Schema | 3/3 | Complete    | 2026-07-26 |
+| 2. Hot Path (Write + Init) | 0/3 | Not started | - |
 | 3. Cold Tier (Compress + Reheat) | 0/TBD | Not started | - |
 | 4. Dream Consolidation + Forgetting | 0/TBD | Not started | - |
