@@ -23,7 +23,7 @@ Requirements for initial release. Each maps to roadmap phases. The core loop (wr
 
 ### Skill-as-Memory Contract
 
-- [ ] **SKILL-01**: A project memory is represented as a Claude Code skill folder (`SKILL.md` + assets); the compact `description` is the always-loaded brief, the body is load-on-demand full memory. This one payload format is what write, init, and remind all move
+- [x] **SKILL-01**: A project memory is represented as a Claude Code skill folder (`SKILL.md` + assets); the compact `description` is the always-loaded brief, the body is load-on-demand full memory. This one payload format is what write, init, and remind all move
 
 ### Write / Capture
 
@@ -32,7 +32,7 @@ Requirements for initial release. Each maps to roadmap phases. The core loop (wr
 
 ### Init / Boot
 
-- [ ] **INIT-01**: `GET /agent/{id}/init` returns a single downloadable bundle of `global recent` + each recent project skill + the `long-term-memory.md` index
+- [x] **INIT-01**: `GET /agent/{id}/init` returns a single downloadable bundle of `global recent` + each recent project skill + the `long-term-memory.md` index
 - [ ] **INIT-02**: An agent can unpack the init bundle into its memory directory and `.claude/skills/`, reconstituting working memory into the native locations Claude Code reads
 
 ### Recall / Reheat
@@ -101,10 +101,10 @@ Which phases cover which requirements. (Finalized by roadmapper — matches ROAD
 | STORE-04 | Phase 1 | Complete |
 | STORE-05 | Phase 1 | Complete |
 | STORE-06 | Phase 1 | Complete |
-| SKILL-01 | Phase 2 | Pending |
+| SKILL-01 | Phase 2 | Complete |
 | WRITE-01 | Phase 2 | Complete |
 | WRITE-02 | Phase 2 | Pending |
-| INIT-01 | Phase 2 | Pending |
+| INIT-01 | Phase 2 | Complete |
 | INIT-02 | Phase 2 | Pending |
 | CLIENT-01 | Phase 2 | Pending |
 | COMP-01 | Phase 3 | Pending |

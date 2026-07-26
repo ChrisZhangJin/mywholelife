@@ -92,7 +92,7 @@ Plans:
 
 **Wave 2** *(blocked on Wave 1; two parallel plans, disjoint files)*
 
-- [ ] 02-02-PLAN.md — Write + init hot loop: bundle package (tar validate/brief/zip transcode) + `POST /memory` + `GET /init` handlers + round-trip/404/traversal tests
+- [x] 02-02-PLAN.md — Write + init hot loop: bundle package (tar validate/brief/zip transcode) + `POST /memory` + `GET /init` handlers + round-trip/404/traversal tests
 - [ ] 02-03-PLAN.md — `mywholelife` client skill: SKILL.md + init/push/session_end/install scripts + SessionEnd hook (dependency-free bash/curl/tar)
 
 ### Phase 3: Cold Tier (Compress + Reheat)
@@ -134,6 +134,6 @@ Phases execute in numeric order: 0 → 1 → 2 → 3 → 4
 |-------|----------------|--------|-----------|
 | 0. Skill-Context Validation Spike | 3/3 | Complete    | 2026-07-26 |
 | 1. Storage Seam + Schema | 3/3 | Complete    | 2026-07-26 |
-| 2. Hot Path (Write + Init) | 1/3 | In Progress|  |
+| 2. Hot Path (Write + Init) | 2/3 | In Progress|  |
 | 3. Cold Tier (Compress + Reheat) | 0/TBD | Not started | - |
 | 4. Dream Consolidation + Forgetting | 0/TBD | Not started | - |

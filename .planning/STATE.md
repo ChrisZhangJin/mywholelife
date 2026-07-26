@@ -4,13 +4,13 @@ milestone: v1.0
 milestone_name: milestone
 status: executing
 stopped_at: Phase 2 context gathered (--auto)
-last_updated: "2026-07-26T17:29:59.035Z"
+last_updated: "2026-07-26T17:39:20.540Z"
 last_activity: 2026-07-26
 progress:
   total_phases: 5
   completed_phases: 2
   total_plans: 9
-  completed_plans: 7
+  completed_plans: 8
   percent: 40
 ---
 
@@ -26,11 +26,11 @@ See: .planning/PROJECT.md (updated 2026-07-25)
 ## Current Position
 
 Phase: 2 (Hot Path (Write + Init)) — EXECUTING
-Plan: 2 of 3
+Plan: 3 of 3
 Status: Ready to execute
 Last activity: 2026-07-26
 
-Progress: [████████░░] 78%
+Progress: [█████████░] 89%
 
 ## Performance Metrics
 
@@ -60,6 +60,7 @@ Progress: [████████░░] 78%
 | Phase 01 P02 | 14min | 3 tasks | 5 files |
 | Phase 01 P03 | 7min | 1 tasks | 3 files |
 | Phase 02 P01 | 12min | 2 tasks | 8 files |
+| Phase 02 P02 | 18min | 3 tasks | 7 files |
 
 ## Accumulated Context
 
@@ -87,6 +88,9 @@ Recent decisions affecting current work:
 - [Phase ?]: [Phase 02-01]: register-first (OQ-1) — dedicated POST /agent/register mints a server UUID via store.RegisterAgent; no endpoint accepts a caller-supplied id
 - [Phase ?]: [Phase 02-01]: register returns the raw UUID as text/plain (D-10) so the client parses it jq-free; 409 on duplicate name, 400 on missing X-Agent-Name
 - [Phase ?]: [Phase 02-01]: server package thin over store interfaces — NewRouter(store.MemoryStore, store.BlobStore); gin v1.12.0 + cobra v1.10.2 pinned; seam confinement test stays green
+- [Phase ?]: [Phase 02-02]: W1 fix — global mem_id is agent-scoped (global-<id>); memories.mem_id is a plain PK so a shared 'global' constant lets one agent's Put ON CONFLICT overwrite another's row
+- [Phase ?]: [Phase 02-02]: single-.tar-blob per skill folder (PutFolder=os.WriteFile); buffer-then-validate ingest with traversal + archive-bomb caps; streamed zip out with headers before first write
+- [Phase ?]: [Phase 02-02]: server computes project mem_id=YYYYMMDD-project (OQ-3), client sends only ?project=; long-term-memory.md kept as a stub slot for Phase 4
 
 ### Pending Todos
 
@@ -108,6 +112,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-26T17:29:31.509Z
+Last session: 2026-07-26T17:38:54.696Z
 Stopped at: Phase 2 context gathered (--auto)
 Resume file: None
