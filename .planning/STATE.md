@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: executing
-stopped_at: Completed 04-01-PLAN.md (dream store durable layer)
-last_updated: "2026-07-26T19:18:00.000Z"
-last_activity: 2026-07-26 -- Completed Phase 4 Plan 01
+status: verifying
+stopped_at: Completed 04-03-PLAN.md
+last_updated: "2026-07-26T19:36:36.288Z"
+last_activity: 2026-07-26
 progress:
   total_phases: 5
-  completed_phases: 4
+  completed_phases: 5
   total_plans: 15
-  completed_plans: 13
-  percent: 87
+  completed_plans: 15
+  percent: 100
 ---
 
 # Project State
@@ -26,11 +26,11 @@ See: .planning/PROJECT.md (updated 2026-07-25)
 ## Current Position
 
 Phase: 4 (Dream Consolidation + Forgetting) — EXECUTING
-Plan: 2 of 3
-Status: Executing Phase 4
-Last activity: 2026-07-26 -- Completed Phase 4 Plan 01
+Plan: 3 of 3
+Status: Phase complete — ready for verification
+Last activity: 2026-07-26
 
-Progress: [█████████░] 87%
+Progress: [██████████] 100%
 
 ## Performance Metrics
 
@@ -69,6 +69,8 @@ Progress: [█████████░] 87%
 | Phase 03 P02 | 9min | 2 tasks | 3 files |
 | Phase 03 P03 | 5min | 2 tasks | 2 files |
 | Phase 04 P01 | 14min | 3 tasks | 10 files |
+| Phase 04 P02 | 13min | 3 tasks | 9 files |
+| Phase 04 P03 | 25min | 2 tasks | 6 files |
 
 ## Accumulated Context
 
@@ -111,6 +113,13 @@ Recent decisions affecting current work:
 - [Phase 04-01]: validateIndex widened to {long_term, tombstone} — tombstones keep their index line as the remind-able breadcrumb, so the D-06 gate must not fail-loud on them; Reheat clears deleted_at so soft-delete is reversible
 - [Phase 04-01]: Compress gained a trailing hook arg routed through m.Brief so untrusted LLM text reuses the single capLen(sanitizeField,120) path (D-02); hook=="" preserves Phase-3 brief-derived behavior, no second index-write path
 - [Phase 04-01]: writeIndexAtomic is the single index-write path (.bak + tmp+rename via now-atomic localBlobStore.PutFolder); CommitIndex validates BEFORE touching disk; SoftDelete takes explicit when so an injected clock reaches durable state; HardDelete is verify-before-destroy line->blob->row; rate-limit/grace comparison deferred to the dream job (Plan 02)
+- [Phase 04-02]: dream/ is a pure orchestrator over store.MemoryStore + store.BlobStore; go-openai confined to dream/hook.go (D-03 seam holds — only importer in the repo)
+- [Phase 04-02]: LLM supplies ONLY hook text and reaches the index solely via store.Compress(...,hook); error/empty degrades to Compress(...,empty) brief fallback — the job never hand-rolls an index line (D-02)
+- [Phase 04-02]: two injected seams (HookGen + int64 now) make the aging pass hermetic; hard-delete deterministically sorted + capped at DREAM_MAX_DELETIONS with every drop logged; final CommitIndex validate-gate returns non-zero on corruption
+- [Phase 04-02]: DREAM_MODEL default deepseek-v4-flash (plan-text deepseek-chat retired 2026-07-24 per RESEARCH A1); D-02 fallback degrades a wrong id to brief hooks, never crash
+- [Phase 04]: dream cobra subcommand requires --agent (store API has no ListAgents; minimal in-scope option)
+- [Phase 04]: Exported dream.NewLLMHookGen (was unexported) so cmd/mywholelife can construct the production HookGen
+- [Phase 04]: DREAM_MODEL checkpoint auto-resolved: kept default deepseek-v4-flash, documented as verify-at-deploy in dream.env.example
 
 ### Pending Todos
 
@@ -132,6 +141,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-26T19:18:00.000Z
-Stopped at: Completed 04-01-PLAN.md (dream store durable layer)
-Resume file: .planning/phases/04-dream-consolidation-forgetting/04-02-PLAN.md
+Last session: 2026-07-26T19:36:36.275Z
+Stopped at: Completed 04-03-PLAN.md
+Resume file: None

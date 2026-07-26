@@ -44,7 +44,7 @@ Requirements for initial release. Each maps to roadmap phases. The core loop (wr
 ### Long-Term Index
 
 - [x] **INDEX-01**: A single `long-term-memory.md` holds one structured entry (`name + hook + memId`) per long-term memory, sized to stay within a bounded token budget (~1–5k)
-- [ ] **INDEX-02**: The index remains a structured list (never narrative prose); a validator asserts every stored memId maps to exactly one index entry before any dream output is committed
+- [x] **INDEX-02**: The index remains a structured list (never narrative prose); a validator asserts every stored memId maps to exactly one index entry before any dream output is committed
 
 ### Compression
 
@@ -53,10 +53,10 @@ Requirements for initial release. Each maps to roadmap phases. The core loop (wr
 
 ### Dream Consolidation & Forgetting
 
-- [ ] **DREAM-01**: A server-side "dream" job ages memories past T1 (14d, unreminded) from recent to long-term and compresses them
-- [ ] **DREAM-02**: The dream job maintains the `long-term-memory.md` index by emitting only new/changed per-item hooks (never a full-file rewrite, never reassigning memIds)
-- [ ] **DREAM-03**: Forgetting is graduated: past T2 (90d, never reminded) a memory becomes a brief tombstone; past T3 (180d) it is soft-deleted with a grace window and a per-run destruction rate limit
-- [ ] **DREAM-04**: The dream job is atomic and resumable per-item; an interrupted run leaves durable state (filesystem, index, DB) consistent and recoverable
+- [x] **DREAM-01**: A server-side "dream" job ages memories past T1 (14d, unreminded) from recent to long-term and compresses them
+- [x] **DREAM-02**: The dream job maintains the `long-term-memory.md` index by emitting only new/changed per-item hooks (never a full-file rewrite, never reassigning memIds)
+- [x] **DREAM-03**: Forgetting is graduated: past T2 (90d, never reminded) a memory becomes a brief tombstone; past T3 (180d) it is soft-deleted with a grace window and a per-run destruction rate limit
+- [x] **DREAM-04**: The dream job is atomic and resumable per-item; an interrupted run leaves durable state (filesystem, index, DB) consistent and recoverable
 
 ### Client Distribution
 
@@ -113,11 +113,11 @@ Which phases cover which requirements. (Finalized by roadmapper — matches ROAD
 | RECALL-02 | Phase 3 | Complete |
 | RECALL-03 | Phase 3 | Complete |
 | INDEX-01 | Phase 3 | Complete |
-| INDEX-02 | Phase 4 | Pending |
-| DREAM-01 | Phase 4 | Pending |
-| DREAM-02 | Phase 4 | Pending |
-| DREAM-03 | Phase 4 | Pending |
-| DREAM-04 | Phase 4 | Pending |
+| INDEX-02 | Phase 4 | Complete |
+| DREAM-01 | Phase 4 | Complete |
+| DREAM-02 | Phase 4 | Complete |
+| DREAM-03 | Phase 4 | Complete |
+| DREAM-04 | Phase 4 | Complete |
 
 **Coverage:**
 - v1 requirements: 25 total

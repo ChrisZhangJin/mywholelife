@@ -17,7 +17,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 1: Storage Seam + Schema** - MemoryStore interface + SQLite/FS adapters; access-time as sole lifecycle field; namespacing + pinned global-recent (completed 2026-07-26)
 - [x] **Phase 2: Hot Path (Write + Init)** - Curated write + boot bundle; skill-as-memory payload contract; mywholelife client skill + SessionEnd hook (completed 2026-07-26)
 - [x] **Phase 3: Cold Tier (Compress + Reheat)** - .tar.zst archival with round-trip verify; remind promotes long-term back to recent; single structured index (completed 2026-07-26)
-- [ ] **Phase 4: Dream Consolidation + Forgetting** - Server-side aging engine: consolidate, maintain the index, graduated tombstone→soft-delete, atomic/resumable
+- [x] **Phase 4: Dream Consolidation + Forgetting** - Server-side aging engine: consolidate, maintain the index, graduated tombstone→soft-delete, atomic/resumable (completed 2026-07-26)
 
 ## Phase Details
 
@@ -143,11 +143,11 @@ Plans:
 
 **Wave 2** *(blocked on Wave 1; shared store files → serial)*
 
-- [ ] 04-02-PLAN.md — dream/ package: go-openai HookGen seam + fallback, dream.Config.FromEnv, one-pass orchestrator (T1 age+compress+hook, T2 tombstone, T3 soft-delete→grace→rate-capped hard-delete, final gate), consistency-scan repair — all with fake HookGen + injected clock
+- [x] 04-02-PLAN.md — dream/ package: go-openai HookGen seam + fallback, dream.Config.FromEnv, one-pass orchestrator (T1 age+compress+hook, T2 tombstone, T3 soft-delete→grace→rate-capped hard-delete, final gate), consistency-scan repair — all with fake HookGen + injected clock
 
 **Wave 3** *(blocked on Wave 2)*
 
-- [ ] 04-03-PLAN.md — Wire the `dream` cobra subcommand (+ --scan/--repair), cron line + gitignored dream.env template, DREAM_MODEL live-catalog verify checkpoint
+- [x] 04-03-PLAN.md — Wire the `dream` cobra subcommand (+ --scan/--repair), cron line + gitignored dream.env template, DREAM_MODEL live-catalog verify checkpoint
 
 ## Progress
 
@@ -160,4 +160,4 @@ Phases execute in numeric order: 0 → 1 → 2 → 3 → 4
 | 1. Storage Seam + Schema | 3/3 | Complete    | 2026-07-26 |
 | 2. Hot Path (Write + Init) | 3/3 | Complete    | 2026-07-26 |
 | 3. Cold Tier (Compress + Reheat) | 3/3 | Complete    | 2026-07-26 |
-| 4. Dream Consolidation + Forgetting | 1/3 | In progress | - |
+| 4. Dream Consolidation + Forgetting | 3/3 | Complete   | 2026-07-26 |
