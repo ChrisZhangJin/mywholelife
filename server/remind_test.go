@@ -67,7 +67,7 @@ func TestRemindRoundTrip(t *testing.T) {
 	}
 	memID := projectMemID(t, st, id)
 
-	if err := st.Compress(ctx, id, memID); err != nil {
+	if err := st.Compress(ctx, id, memID, ""); err != nil {
 		t.Fatalf("compress: %v", err)
 	}
 	pre, err := st.Get(ctx, id, memID)
@@ -149,7 +149,7 @@ func TestInitReflectsCompressedIndex(t *testing.T) {
 		t.Fatalf("post memory: status %d, want 204", code)
 	}
 	memID := projectMemID(t, st, id)
-	if err := st.Compress(ctx, id, memID); err != nil {
+	if err := st.Compress(ctx, id, memID, ""); err != nil {
 		t.Fatalf("compress: %v", err)
 	}
 	_, entries := getInit(t, r, id)

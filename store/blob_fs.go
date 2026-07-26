@@ -42,7 +42,11 @@ func (b *localBlobStore) PutFolder(_ context.Context, relPath string, data []byt
 	if err := os.MkdirAll(filepath.Dir(full), 0o755); err != nil {
 		return err
 	}
-	return os.WriteFile(full, data, 0o644)
+	tmp := full + ".tmp"
+	if err := os.WriteFile(tmp, data, 0o644); err != nil {
+		return err
+	}
+	return os.Rename(tmp, full)
 }
 
 func (b *localBlobStore) GetFolder(_ context.Context, relPath string) ([]byte, error) {
@@ -77,4 +81,33 @@ func (b *localBlobStore) Exists(_ context.Context, relPath string) (bool, error)
 		return false, err
 	}
 	return true, nil
+}
+
+// Walk enumerates the rel_paths of every regular file under relPath (used by the
+// consistency scan to find orphan blobs, D-07). A missing directory yields no
+// entries and no error.
+func (b *localBlobStore) Walk(_ context.Context, relPath string) ([]string, error) {
+	full, err := b.resolve(relPath)
+	if err != nil {
+		return nil, err
+	}
+	var out []string
+	err = filepath.WalkDir(full, func(p string, d os.DirEntry, err error) error {
+		if err != nil {
+			if errors.Is(err, os.ErrNotExist) {
+				return nil
+			}
+			return err
+		}
+		if d.IsDir() {
+			return nil
+		}
+		rel, err := filepath.Rel(b.root, p)
+		if err != nil {
+			return err
+		}
+		out = append(out, filepath.ToSlash(rel))
+		return nil
+	})
+	return out, err
 }

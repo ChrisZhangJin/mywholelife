@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"path/filepath"
+	"strings"
 	"testing"
 	"time"
 
@@ -39,6 +40,16 @@ func (f *fakeBlobStore) Delete(_ context.Context, relPath string) error {
 func (f *fakeBlobStore) Exists(_ context.Context, relPath string) (bool, error) {
 	_, ok := f.m[relPath]
 	return ok, nil
+}
+
+func (f *fakeBlobStore) Walk(_ context.Context, relPath string) ([]string, error) {
+	var out []string
+	for k := range f.m {
+		if strings.HasPrefix(k, relPath) {
+			out = append(out, k)
+		}
+	}
+	return out, nil
 }
 
 func newTestStore(t *testing.T) *sqliteStore {

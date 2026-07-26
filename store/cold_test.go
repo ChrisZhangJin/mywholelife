@@ -59,7 +59,7 @@ func TestCompressReheatRoundTrip(t *testing.T) {
 	tarPath := "agents/" + a.ID + "/projects/20260726-widgets.tar"
 	zstPath := "agents/" + a.ID + "/projects/20260726-widgets.tar.zst"
 
-	if err := s.Compress(ctx, a.ID, "20260726-widgets"); err != nil {
+	if err := s.Compress(ctx, a.ID, "20260726-widgets", ""); err != nil {
 		t.Fatalf("Compress: %v", err)
 	}
 
@@ -129,7 +129,7 @@ func TestCompressVerifyFailureKeepsSource(t *testing.T) {
 	tarPath := "agents/" + a.ID + "/projects/20260726-widgets.tar"
 	zstPath := "agents/" + a.ID + "/projects/20260726-widgets.tar.zst"
 
-	if err := s.Compress(ctx, a.ID, "20260726-widgets"); err == nil {
+	if err := s.Compress(ctx, a.ID, "20260726-widgets", ""); err == nil {
 		t.Fatal("Compress must error when round-trip verify fails")
 	}
 	if ok, _ := blobs.Exists(ctx, tarPath); !ok {
@@ -173,7 +173,7 @@ func TestCompressReheatNotFound(t *testing.T) {
 	s := newTestStoreWithBlobs(t, newFakeBlobStore())
 	a := mustRegister(t, s, "alice")
 
-	if err := s.Compress(ctx, a.ID, "ghost"); !errors.Is(err, ErrNotFound) {
+	if err := s.Compress(ctx, a.ID, "ghost", ""); !errors.Is(err, ErrNotFound) {
 		t.Fatalf("Compress(missing) err = %v, want ErrNotFound", err)
 	}
 	if err := s.Reheat(ctx, a.ID, "ghost"); !errors.Is(err, ErrNotFound) {

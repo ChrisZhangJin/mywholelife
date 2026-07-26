@@ -320,18 +320,159 @@ func (s *sqliteStore) GetIndex(ctx context.Context, agentID string) ([]byte, err
 }
 
 func (s *sqliteStore) PutIndex(ctx context.Context, agentID string, content []byte) error {
-	return s.blobs.PutFolder(ctx, indexPath(agentID), content)
+	return s.writeIndexAtomic(ctx, agentID, content)
+}
+
+// CommitIndex validates the proposed index against the agent's rows BEFORE any
+// disk write (D-06): a validation failure returns the error and leaves the prior
+// index byte-unchanged. On success it writes atomically via writeIndexAtomic.
+func (s *sqliteStore) CommitIndex(ctx context.Context, agentID string, content []byte) error {
+	rows, err := s.List(ctx, agentID, "", "")
+	if err != nil {
+		return err
+	}
+	if err := validateIndex(rows, content); err != nil {
+		return err
+	}
+	return s.writeIndexAtomic(ctx, agentID, content)
+}
+
+// writeIndexAtomic is the single index-write path: it copies any prior index to
+// <path>.bak, then writes via the blob store (localBlobStore.PutFolder does a
+// tmp+rename atomic replace), so every index write is crash-safe (D-06).
+func (s *sqliteStore) writeIndexAtomic(ctx context.Context, agentID string, content []byte) error {
+	p := indexPath(agentID)
+	if prev, err := s.blobs.GetFolder(ctx, p); err == nil {
+		if err := s.blobs.PutFolder(ctx, p+".bak", prev); err != nil {
+			return err
+		}
+	} else if !errors.Is(err, ErrNotFound) {
+		return err
+	}
+	return s.blobs.PutFolder(ctx, p, content)
+}
+
+// SoftDelete stamps an explicit deleted_at (the grace-window start) on a
+// tombstone (T3-mark, D-04). The deleted_at IS NULL guard makes a re-run a no-op
+// that never resets the grace clock (D-07); a missing or exempt row is a silent
+// no-op success, mirroring Forget.
+func (s *sqliteStore) SoftDelete(ctx context.Context, agentID, memID string, when int64) error {
+	return s.withTx(ctx, func(tx *sql.Tx) error {
+		_, err := tx.ExecContext(ctx,
+			`UPDATE memories SET deleted_at = ?
+			 WHERE agent_id = ? AND mem_id = ? AND state = 'tombstone'
+			   AND deleted_at IS NULL AND pinned = 0 AND scope <> 'global'`,
+			when, agentID, memID)
+		return err
+	})
+}
+
+// HardDelete destroys a soft-deleted tombstone with verify-before-destroy
+// ordering (D-04/D-07): confirm it is a tombstone with deleted_at set, then
+// remove the index line, then the blob, then the row. Each step is idempotent so
+// an interrupted run converges on re-run; a non-soft-deleted or missing row is a
+// no-op. Rate-limit/grace comparison is the caller's (Plan 02).
+func (s *sqliteStore) HardDelete(ctx context.Context, agentID, memID string) error {
+	m, err := s.Get(ctx, agentID, memID)
+	if errors.Is(err, ErrNotFound) {
+		return nil
+	}
+	if err != nil {
+		return err
+	}
+	if m.State != StateTombstone || !m.DeletedAt.Valid {
+		return nil
+	}
+	if err := s.removeIndex(ctx, agentID, memID); err != nil {
+		return err
+	}
+	if err := s.blobs.Delete(ctx, m.RelPath); err != nil {
+		return err
+	}
+	return s.withTx(ctx, func(tx *sql.Tx) error {
+		_, e := tx.ExecContext(ctx,
+			`DELETE FROM memories WHERE agent_id = ? AND mem_id = ?`, agentID, memID)
+		return e
+	})
+}
+
+// ScanConsistency reconciles FS ↔ DB ↔ index read-only (D-07): it reports orphan
+// blobs, dangling rows, torn compress pairs, and index/row mismatches without
+// destroying anything. A clean store reports zero findings; repair sequencing is
+// the dream job's (Plan 02).
+func (s *sqliteStore) ScanConsistency(ctx context.Context, agentID string) (ScanReport, error) {
+	var rep ScanReport
+	rows, err := s.List(ctx, agentID, "", "")
+	if err != nil {
+		return rep, err
+	}
+	rowPaths := map[string]bool{}
+	for _, m := range rows {
+		if m.RelPath == "" {
+			continue
+		}
+		rowPaths[m.RelPath] = true
+		ok, err := s.blobs.Exists(ctx, m.RelPath)
+		if err != nil {
+			return rep, err
+		}
+		if !ok {
+			rep.Findings = append(rep.Findings, Inconsistency{
+				Kind: "dangling_row", MemID: m.MemID, RelPath: m.RelPath})
+		}
+	}
+	blobs, err := s.blobs.Walk(ctx, path.Join("agents", agentID))
+	if err != nil {
+		return rep, err
+	}
+	bases := map[string]map[string]bool{}
+	for _, p := range blobs {
+		var base, ext string
+		switch {
+		case strings.HasSuffix(p, ".tar.zst"):
+			base, ext = strings.TrimSuffix(p, ".tar.zst"), ".tar.zst"
+		case strings.HasSuffix(p, ".tar"):
+			base, ext = strings.TrimSuffix(p, ".tar"), ".tar"
+		default:
+			continue
+		}
+		if bases[base] == nil {
+			bases[base] = map[string]bool{}
+		}
+		bases[base][ext] = true
+		if !rowPaths[p] {
+			rep.Findings = append(rep.Findings, Inconsistency{Kind: "orphan_blob", RelPath: p})
+		}
+	}
+	for base, exts := range bases {
+		if exts[".tar"] && exts[".tar.zst"] {
+			rep.Findings = append(rep.Findings, Inconsistency{Kind: "torn_compress", RelPath: base})
+		}
+	}
+	idxContent, err := s.GetIndex(ctx, agentID)
+	if err != nil && !errors.Is(err, ErrNotFound) {
+		return rep, err
+	}
+	if err := validateIndex(rows, idxContent); err != nil {
+		rep.Findings = append(rep.Findings, Inconsistency{Kind: "index_mismatch", Detail: err.Error()})
+	}
+	return rep, nil
 }
 
 // Compress archives a recent memory: .tar → verified .tar.zst, state=long_term,
 // index upserted (COMP-01). access_time is left untouched (compress is aging).
 // The source .tar is deleted LAST, only after the read-back round-trip verifies
 // and the DB pointer commits — never lose a memory to a bad compress (COMP-02,
-// D-02, Pattern 1).
-func (s *sqliteStore) Compress(ctx context.Context, agentID, memID string) error {
+// D-02, Pattern 1). A non-empty hook overrides the brief-derived index line and
+// flows through the same upsertIndexLine sanitize/cap path; hook=="" keeps the
+// Phase-3 brief-derived behavior (D-02).
+func (s *sqliteStore) Compress(ctx context.Context, agentID, memID, hook string) error {
 	m, err := s.Get(ctx, agentID, memID)
 	if err != nil {
 		return err
+	}
+	if hook != "" {
+		m.Brief = hook
 	}
 	srcTar, err := s.blobs.GetFolder(ctx, m.RelPath)
 	if err != nil {
