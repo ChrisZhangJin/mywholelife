@@ -2,6 +2,7 @@ package store
 
 import (
 	"context"
+	"database/sql"
 	"errors"
 )
 
@@ -35,6 +36,7 @@ type Memory struct {
 	Brief      string
 	RelPath    string
 	CreatedAt  int64
+	DeletedAt  sql.NullInt64
 }
 
 type MemoryStore interface {

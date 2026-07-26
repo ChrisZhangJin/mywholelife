@@ -37,9 +37,24 @@ func Open(dbPath string, blobs BlobStore) (*sqliteStore, error) {
 		return nil, err
 	}
 	db.SetMaxOpenConns(1)
-	if _, err := db.ExecContext(context.Background(), schemaSQL); err != nil {
+	ctx := context.Background()
+	if _, err := db.ExecContext(ctx, schemaSQL); err != nil {
 		db.Close()
 		return nil, err
+	}
+	var hasDeletedAt int
+	if err := db.QueryRowContext(ctx,
+		`SELECT count(*) FROM pragma_table_info('memories') WHERE name='deleted_at'`).
+		Scan(&hasDeletedAt); err != nil {
+		db.Close()
+		return nil, err
+	}
+	if hasDeletedAt == 0 {
+		if _, err := db.ExecContext(ctx,
+			`ALTER TABLE memories ADD COLUMN deleted_at INTEGER`); err != nil {
+			db.Close()
+			return nil, err
+		}
 	}
 	return &sqliteStore{db: db, blobs: blobs}, nil
 }
@@ -213,7 +228,7 @@ func scanMemory(sc interface{ Scan(...any) error }) (Memory, error) {
 	var pinned int64
 	var brief, relPath sql.NullString
 	err := sc.Scan(&m.MemID, &m.AgentID, &m.Scope, &m.State,
-		&m.AccessTime, &pinned, &brief, &relPath, &m.CreatedAt)
+		&m.AccessTime, &pinned, &brief, &relPath, &m.CreatedAt, &m.DeletedAt)
 	if err != nil {
 		return Memory{}, err
 	}
@@ -225,7 +240,7 @@ func scanMemory(sc interface{ Scan(...any) error }) (Memory, error) {
 
 func (s *sqliteStore) Get(ctx context.Context, agentID, memID string) (Memory, error) {
 	row := s.db.QueryRowContext(ctx,
-		`SELECT mem_id, agent_id, scope, state, access_time, pinned, brief, rel_path, created_at
+		`SELECT mem_id, agent_id, scope, state, access_time, pinned, brief, rel_path, created_at, deleted_at
 		 FROM memories WHERE agent_id = ? AND mem_id = ?`, agentID, memID)
 	m, err := scanMemory(row)
 	if errors.Is(err, sql.ErrNoRows) {
@@ -238,7 +253,7 @@ func (s *sqliteStore) Get(ctx context.Context, agentID, memID string) (Memory, e
 }
 
 func (s *sqliteStore) List(ctx context.Context, agentID, scope, state string) ([]Memory, error) {
-	q := `SELECT mem_id, agent_id, scope, state, access_time, pinned, brief, rel_path, created_at
+	q := `SELECT mem_id, agent_id, scope, state, access_time, pinned, brief, rel_path, created_at, deleted_at
 	      FROM memories WHERE agent_id = ?`
 	args := []any{agentID}
 	if scope != "" {
@@ -390,7 +405,7 @@ func (s *sqliteStore) Reheat(ctx context.Context, agentID, memID string) error {
 	now := time.Now().Unix()
 	if err := s.withTx(ctx, func(tx *sql.Tx) error {
 		_, e := tx.ExecContext(ctx,
-			`UPDATE memories SET state=?, rel_path=?, access_time=? WHERE agent_id=? AND mem_id=?`,
+			`UPDATE memories SET state=?, rel_path=?, access_time=?, deleted_at=NULL WHERE agent_id=? AND mem_id=?`,
 			StateRecent, tarPath, now, agentID, memID)
 		return e
 	}); err != nil {

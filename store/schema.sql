@@ -13,7 +13,8 @@ CREATE TABLE IF NOT EXISTS memories (
   pinned      INTEGER NOT NULL DEFAULT 0,
   brief       TEXT,
   rel_path    TEXT,
-  created_at  INTEGER NOT NULL
+  created_at  INTEGER NOT NULL,
+  deleted_at  INTEGER
 );
 
 CREATE INDEX IF NOT EXISTS idx_memories_aging

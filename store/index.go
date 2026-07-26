@@ -120,23 +120,25 @@ func removeIndexLine(content []byte, memID string) []byte {
 	return serializeIndex(lines)
 }
 
-// validateIndex asserts a 1:1 mapping between long_term rows and index lines
-// (D-07): every long_term memory has a line and every line has a long_term row.
+// validateIndex asserts a 1:1 mapping between indexed rows and index lines
+// (D-06): every long_term/tombstone memory has a line and every line has a
+// long_term/tombstone row. Tombstones keep their line as the remind-able
+// breadcrumb, so they are in the want set alongside long_term rows.
 func validateIndex(rows []Memory, content []byte) error {
 	_, idx := parseIndex(content)
 	want := map[string]bool{}
 	for _, m := range rows {
-		if m.State != StateLongTerm {
+		if m.State != StateLongTerm && m.State != StateTombstone {
 			continue
 		}
 		want[m.MemID] = true
 		if _, ok := idx[m.MemID]; !ok {
-			return fmt.Errorf("store: index missing line for long_term memory %q", m.MemID)
+			return fmt.Errorf("store: index missing line for %s memory %q", m.State, m.MemID)
 		}
 	}
 	for memID := range idx {
 		if !want[memID] {
-			return fmt.Errorf("store: index has line for %q with no long_term row", memID)
+			return fmt.Errorf("store: index has line for %q with no long_term/tombstone row", memID)
 		}
 	}
 	return nil
