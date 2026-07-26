@@ -1,12 +1,14 @@
 package store
 
 import (
+	"bytes"
 	"context"
 	"database/sql"
 	_ "embed"
 	"errors"
 	"fmt"
 	"path"
+	"strings"
 	"time"
 
 	"github.com/google/uuid"
@@ -306,10 +308,115 @@ func (s *sqliteStore) PutIndex(ctx context.Context, agentID string, content []by
 	return s.blobs.PutFolder(ctx, indexPath(agentID), content)
 }
 
+// Compress archives a recent memory: .tar → verified .tar.zst, state=long_term,
+// index upserted (COMP-01). access_time is left untouched (compress is aging).
+// The source .tar is deleted LAST, only after the read-back round-trip verifies
+// and the DB pointer commits — never lose a memory to a bad compress (COMP-02,
+// D-02, Pattern 1).
 func (s *sqliteStore) Compress(ctx context.Context, agentID, memID string) error {
-	return ErrNotImplemented
+	m, err := s.Get(ctx, agentID, memID)
+	if err != nil {
+		return err
+	}
+	srcTar, err := s.blobs.GetFolder(ctx, m.RelPath)
+	if err != nil {
+		return err
+	}
+	comp, err := zstdCompress(srcTar)
+	if err != nil {
+		return err
+	}
+	zstPath := strings.TrimSuffix(m.RelPath, ".tar") + ".tar.zst"
+	if err := s.blobs.PutFolder(ctx, zstPath, comp); err != nil {
+		return err
+	}
+	stored, err := s.blobs.GetFolder(ctx, zstPath)
+	if err == nil {
+		var back []byte
+		back, err = zstdDecompress(stored)
+		if err == nil && !bytes.Equal(srcTar, back) {
+			err = fmt.Errorf("store: compress round-trip verify failed for %s", memID)
+		}
+	}
+	if err != nil {
+		_ = s.blobs.Delete(ctx, zstPath) // drop the bad artifact; keep source
+		return err
+	}
+	if err := s.withTx(ctx, func(tx *sql.Tx) error {
+		_, e := tx.ExecContext(ctx,
+			`UPDATE memories SET state=?, rel_path=? WHERE agent_id=? AND mem_id=?`,
+			StateLongTerm, zstPath, agentID, memID)
+		return e
+	}); err != nil {
+		return err
+	}
+	if err := s.upsertIndex(ctx, agentID, m); err != nil {
+		return err
+	}
+	return s.blobs.Delete(ctx, m.RelPath) // delete source LAST
 }
 
+// Reheat is the inverse (D-03): .tar.zst → verified .tar, state=recent,
+// access_time=now, index line removed, .tar.zst deleted LAST. An already-recent
+// memory is a no-op Touch (idempotent — robust to races with the dream job).
 func (s *sqliteStore) Reheat(ctx context.Context, agentID, memID string) error {
-	return ErrNotImplemented
+	m, err := s.Get(ctx, agentID, memID)
+	if err != nil {
+		return err
+	}
+	if m.State == StateRecent {
+		return s.Touch(ctx, agentID, memID)
+	}
+	comp, err := s.blobs.GetFolder(ctx, m.RelPath)
+	if err != nil {
+		return err
+	}
+	tar, err := zstdDecompress(comp)
+	if err != nil {
+		return err
+	}
+	tarPath := strings.TrimSuffix(m.RelPath, ".tar.zst") + ".tar"
+	if err := s.blobs.PutFolder(ctx, tarPath, tar); err != nil {
+		return err
+	}
+	stored, err := s.blobs.GetFolder(ctx, tarPath)
+	if err != nil || !bytes.Equal(tar, stored) {
+		_ = s.blobs.Delete(ctx, tarPath)
+		if err == nil {
+			err = fmt.Errorf("store: reheat round-trip verify failed for %s", memID)
+		}
+		return err
+	}
+	now := time.Now().Unix()
+	if err := s.withTx(ctx, func(tx *sql.Tx) error {
+		_, e := tx.ExecContext(ctx,
+			`UPDATE memories SET state=?, rel_path=?, access_time=? WHERE agent_id=? AND mem_id=?`,
+			StateRecent, tarPath, now, agentID, memID)
+		return e
+	}); err != nil {
+		return err
+	}
+	if err := s.removeIndex(ctx, agentID, memID); err != nil {
+		return err
+	}
+	return s.blobs.Delete(ctx, m.RelPath) // delete .tar.zst LAST
+}
+
+func (s *sqliteStore) upsertIndex(ctx context.Context, agentID string, m Memory) error {
+	content, err := s.GetIndex(ctx, agentID)
+	if err != nil && !errors.Is(err, ErrNotFound) {
+		return err
+	}
+	return s.PutIndex(ctx, agentID, upsertIndexLine(content, m))
+}
+
+func (s *sqliteStore) removeIndex(ctx context.Context, agentID, memID string) error {
+	content, err := s.GetIndex(ctx, agentID)
+	if errors.Is(err, ErrNotFound) {
+		return nil
+	}
+	if err != nil {
+		return err
+	}
+	return s.PutIndex(ctx, agentID, removeIndexLine(content, memID))
 }

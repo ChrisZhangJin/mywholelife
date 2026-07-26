@@ -388,17 +388,6 @@ func TestIndexRoundTrip(t *testing.T) {
 	}
 }
 
-func TestCompressReheatStubs(t *testing.T) {
-	s := newTestStore(t)
-	ctx := context.Background()
-	if err := s.Compress(ctx, "a", "m"); !errors.Is(err, ErrNotImplemented) {
-		t.Fatalf("Compress err = %v, want ErrNotImplemented", err)
-	}
-	if err := s.Reheat(ctx, "a", "m"); !errors.Is(err, ErrNotImplemented) {
-		t.Fatalf("Reheat err = %v, want ErrNotImplemented", err)
-	}
-}
-
 func TestOpenIdempotent(t *testing.T) {
 	// W1: opening the same file twice re-applies the schema without error.
 	p := filepath.Join(t.TempDir(), "idx.db")
