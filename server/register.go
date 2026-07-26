@@ -16,6 +16,10 @@ func registerAgent(st store.MemoryStore) gin.HandlerFunc {
 			c.String(http.StatusBadRequest, "missing X-Agent-Name")
 			return
 		}
+		if !validKey(name) {
+			c.String(http.StatusBadRequest, "invalid X-Agent-Name")
+			return
+		}
 		agent, err := st.RegisterAgent(c, name)
 		if errors.Is(err, store.ErrDuplicateName) {
 			c.String(http.StatusConflict, "name already registered")

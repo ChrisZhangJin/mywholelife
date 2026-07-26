@@ -13,6 +13,10 @@ import (
 func initBundle(st store.MemoryStore, bl store.BlobStore) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		id := c.Param("id")
+		if !validKey(id) {
+			c.String(http.StatusBadRequest, "invalid agent id")
+			return
+		}
 		if _, err := st.GetAgent(c, id); errors.Is(err, store.ErrNotFound) {
 			c.String(http.StatusNotFound, "unknown agent")
 			return

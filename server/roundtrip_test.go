@@ -174,6 +174,31 @@ func TestTraversalRejected(t *testing.T) {
 	}
 }
 
+func TestProjectTraversalRejected(t *testing.T) {
+	r, _ := setup(t)
+	id := register(t, r, "dave")
+	body := makeTar(t, map[string]string{
+		"SKILL.md": "---\ndescription: ok\n---\n",
+	})
+	if code := postMemory(t, r, id, "?scope=project&project=../evil", body); code != http.StatusBadRequest {
+		t.Fatalf("traversal project post: status %d, want 400", code)
+	}
+	_, entries := getInit(t, r, id)
+	for name := range entries {
+		if strings.HasPrefix(name, "skills/") {
+			t.Fatalf("init zip should have no project skills after rejected write; got %v", keys(entries))
+		}
+	}
+}
+
+func TestInitRejectsInvalidID(t *testing.T) {
+	r, _ := setup(t)
+	code, _ := getInit(t, r, "..")
+	if code != http.StatusBadRequest {
+		t.Fatalf("init invalid id: status %d, want 400", code)
+	}
+}
+
 func TestGlobalPerAgentIsolation(t *testing.T) {
 	r, st := setup(t)
 	a := register(t, r, "agent-a")

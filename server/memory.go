@@ -20,6 +20,15 @@ func writeMemory(st store.MemoryStore, bl store.BlobStore) gin.HandlerFunc {
 		scope := c.Query("scope")
 		project := c.Query("project")
 
+		if !validKey(id) {
+			c.String(http.StatusBadRequest, "invalid agent id")
+			return
+		}
+		if scope == store.ScopeProject && project != "" && !validKey(project) {
+			c.String(http.StatusBadRequest, "invalid project")
+			return
+		}
+
 		if _, err := st.GetAgent(c, id); errors.Is(err, store.ErrNotFound) {
 			c.String(http.StatusNotFound, "unknown agent")
 			return
