@@ -116,7 +116,7 @@ Plans:
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-- [ ] 03-02-PLAN.md — `GET /agent/:id/remind?mem=` handler (validKey → Reheat → application/x-tar) + route wiring + httptest round-trip/400/404 + init-reflects-index
+- [x] 03-02-PLAN.md — `GET /agent/:id/remind?mem=` handler (validKey → Reheat → application/x-tar) + route wiring + httptest round-trip/400/404 + init-reflects-index
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
@@ -147,5 +147,5 @@ Phases execute in numeric order: 0 → 1 → 2 → 3 → 4
 | 0. Skill-Context Validation Spike | 3/3 | Complete    | 2026-07-26 |
 | 1. Storage Seam + Schema | 3/3 | Complete    | 2026-07-26 |
 | 2. Hot Path (Write + Init) | 3/3 | Complete    | 2026-07-26 |
-| 3. Cold Tier (Compress + Reheat) | 1/3 | In Progress|  |
+| 3. Cold Tier (Compress + Reheat) | 2/3 | In Progress|  |
 | 4. Dream Consolidation + Forgetting | 0/TBD | Not started | - |

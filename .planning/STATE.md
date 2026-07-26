@@ -4,13 +4,13 @@ milestone: v1.0
 milestone_name: milestone
 status: executing
 stopped_at: Phase 3 context gathered (--auto)
-last_updated: "2026-07-26T18:24:48.319Z"
+last_updated: "2026-07-26T18:29:15.373Z"
 last_activity: 2026-07-26
 progress:
   total_phases: 5
   completed_phases: 3
   total_plans: 12
-  completed_plans: 10
+  completed_plans: 11
   percent: 60
 ---
 
@@ -26,11 +26,11 @@ See: .planning/PROJECT.md (updated 2026-07-25)
 ## Current Position
 
 Phase: 3 (Cold Tier (Compress + Reheat)) — EXECUTING
-Plan: 2 of 3
+Plan: 3 of 3
 Status: Ready to execute
 Last activity: 2026-07-26
 
-Progress: [████████░░] 83%
+Progress: [█████████░] 92%
 
 ## Performance Metrics
 
@@ -64,6 +64,7 @@ Progress: [████████░░] 83%
 | Phase 02 P02 | 18min | 3 tasks | 7 files |
 | Phase 02 P03 | 12min | 2 tasks | 6 files |
 | Phase 03 P01 | 6min | 2 tasks | 8 files |
+| Phase 03 P02 | 9min | 2 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -98,6 +99,8 @@ Recent decisions affecting current work:
 - [Phase 02-03]: SessionEnd hook is dumb transport (outbox -> push.sh -> clear); install.sh registers the correct session_end.sh path per mode (W3: CLAUDE_PROJECT_DIR local vs absolute HOME for --global), idempotent, never clobbers settings.json
 - [Phase 03]: Compress/Reheat verify against the persisted (re-read) .tar.zst/.tar, not in-memory bytes — strengthens D-02 and enables fault-injectable negative-path tests
 - [Phase 03]: zstd confined to store/zstd.go using one-shot EncodeAll/DecodeAll with a 32MB decompression cap (D-01 seam)
+- [Phase 03-02]: remind handler stays thin over store.Reheat — validKey(id)+validKey(mem) gate before any store call; access_time bump owned by the store (seam intact, no compressor import in server/)
+- [Phase 03-02]: RECALL-01/02 + INDEX-01 verified end-to-end via httptest — GET /remind returns application/x-tar, promotes to recent, init reflects the compressed line then drops it after reheat (D-04/D-08)
 
 ### Pending Todos
 
@@ -119,6 +122,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-26T18:23:51.734Z
+Last session: 2026-07-26T18:28:48.509Z
 Stopped at: Phase 3 context gathered (--auto)
 Resume file: None
