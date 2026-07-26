@@ -138,6 +138,30 @@ func TestValidateIndex(t *testing.T) {
 	}
 }
 
+func TestValidateIndexTombstone(t *testing.T) {
+	lt := Memory{MemID: "20260726-lt", State: StateLongTerm, Brief: "lt"}
+	tomb := Memory{MemID: "20260726-tomb", State: StateTombstone, Brief: "tomb"}
+	rows := []Memory{lt, tomb}
+
+	content := upsertIndexLine(nil, lt)
+	content = upsertIndexLine(content, tomb)
+	if err := validateIndex(rows, content); err != nil {
+		t.Fatalf("a tombstone row WITH a line must pass (D-06): %v", err)
+	}
+
+	// A tombstone row WITHOUT a line fails — its remind-able breadcrumb is gone.
+	missing := removeIndexLine(content, "20260726-tomb")
+	if err := validateIndex(rows, missing); err == nil {
+		t.Fatal("tombstone row without an index line must fail")
+	}
+
+	// A line WITHOUT any row fails.
+	extra := upsertIndexLine(content, Memory{MemID: "20260726-ghost", Brief: "g"})
+	if err := validateIndex(rows, extra); err == nil {
+		t.Fatal("index line without a long_term/tombstone row must fail")
+	}
+}
+
 func TestIndexFieldSanitization(t *testing.T) {
 	m := Memory{
 		MemID: "20260726-widgets",
