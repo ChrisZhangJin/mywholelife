@@ -135,7 +135,19 @@ Plans:
   3. Forgetting is graduated: past T2 (90d, never reminded) a memory becomes a remind-able brief tombstone; past T3 (180d) it is soft-deleted with a grace window and a per-run destruction rate limit.
   4. The dream job is atomic and resumable per-item; an interrupted run leaves durable state (filesystem, index, DB) consistent and recoverable via a consistency scan.
 
-**Plans**: TBD
+**Plans**: 3 plans
+Plans:
+**Wave 1**
+
+- [x] 04-01-PLAN.md — Store durable layer: deleted_at column + migration, validateIndex widened to {long_term,tombstone}, Reheat clears deleted_at, SoftDelete/HardDelete, atomic validate-before-rename CommitIndex, ScanConsistency
+
+**Wave 2** *(blocked on Wave 1; shared store files → serial)*
+
+- [ ] 04-02-PLAN.md — dream/ package: go-openai HookGen seam + fallback, dream.Config.FromEnv, one-pass orchestrator (T1 age+compress+hook, T2 tombstone, T3 soft-delete→grace→rate-capped hard-delete, final gate), consistency-scan repair — all with fake HookGen + injected clock
+
+**Wave 3** *(blocked on Wave 2)*
+
+- [ ] 04-03-PLAN.md — Wire the `dream` cobra subcommand (+ --scan/--repair), cron line + gitignored dream.env template, DREAM_MODEL live-catalog verify checkpoint
 
 ## Progress
 
@@ -147,5 +159,5 @@ Phases execute in numeric order: 0 → 1 → 2 → 3 → 4
 | 0. Skill-Context Validation Spike | 3/3 | Complete    | 2026-07-26 |
 | 1. Storage Seam + Schema | 3/3 | Complete    | 2026-07-26 |
 | 2. Hot Path (Write + Init) | 3/3 | Complete    | 2026-07-26 |
-| 3. Cold Tier (Compress + Reheat) | 3/3 | Complete   | 2026-07-26 |
-| 4. Dream Consolidation + Forgetting | 0/TBD | Not started | - |
+| 3. Cold Tier (Compress + Reheat) | 3/3 | Complete    | 2026-07-26 |
+| 4. Dream Consolidation + Forgetting | 1/3 | In progress | - |
