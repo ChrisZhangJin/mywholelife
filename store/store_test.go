@@ -259,6 +259,146 @@ func listMemIDs(t *testing.T, s *sqliteStore, agentID string) []string {
 	return ids
 }
 
+func TestGetAndList(t *testing.T) {
+	s := newTestStore(t)
+	ctx := context.Background()
+	a := mustRegister(t, s, "alice")
+
+	if err := s.Put(ctx, Memory{MemID: "20260726-alpha", AgentID: a.ID, Scope: ScopeProject, Brief: "a"}); err != nil {
+		t.Fatalf("Put alpha: %v", err)
+	}
+	if err := s.Put(ctx, Memory{MemID: "global-recent", AgentID: a.ID, Scope: ScopeGlobal, Pinned: true, Brief: "g"}); err != nil {
+		t.Fatalf("Put global: %v", err)
+	}
+
+	m, err := s.Get(ctx, a.ID, "20260726-alpha")
+	if err != nil {
+		t.Fatalf("Get: %v", err)
+	}
+	if m.Brief != "a" || m.State != StateRecent || m.Scope != ScopeProject || m.Pinned {
+		t.Fatalf("Get returned %+v", m)
+	}
+
+	g, err := s.Get(ctx, a.ID, "global-recent")
+	if err != nil {
+		t.Fatalf("Get global: %v", err)
+	}
+	if !g.Pinned {
+		t.Fatal("global-recent should be pinned")
+	}
+
+	if _, err := s.Get(ctx, a.ID, "missing"); !errors.Is(err, ErrNotFound) {
+		t.Fatalf("Get(missing) err = %v, want ErrNotFound", err)
+	}
+
+	project, err := s.List(ctx, a.ID, ScopeProject, StateRecent)
+	if err != nil {
+		t.Fatalf("List: %v", err)
+	}
+	if len(project) != 1 || project[0].MemID != "20260726-alpha" {
+		t.Fatalf("List(project,recent) = %+v", project)
+	}
+
+	all, err := s.List(ctx, a.ID, "", "")
+	if err != nil {
+		t.Fatalf("List all: %v", err)
+	}
+	if len(all) != 2 {
+		t.Fatalf("List(all) len = %d, want 2", len(all))
+	}
+}
+
+func TestForgetTransitions(t *testing.T) {
+	s := newTestStore(t)
+	ctx := context.Background()
+	a := mustRegister(t, s, "alice")
+
+	if err := s.Put(ctx, Memory{MemID: "20260726-alpha", AgentID: a.ID, Scope: ScopeProject}); err != nil {
+		t.Fatalf("Put: %v", err)
+	}
+
+	if err := s.Forget(ctx, a.ID, "20260726-alpha", StateLongTerm); err != nil {
+		t.Fatalf("Forget->long_term: %v", err)
+	}
+	if st, _ := memoryState(t, s, a.ID, "20260726-alpha"); st != StateLongTerm {
+		t.Fatalf("state = %q, want long_term", st)
+	}
+
+	if err := s.Forget(ctx, a.ID, "20260726-alpha", StateTombstone); err != nil {
+		t.Fatalf("Forget->tombstone: %v", err)
+	}
+	if st, _ := memoryState(t, s, a.ID, "20260726-alpha"); st != StateTombstone {
+		t.Fatalf("state = %q, want tombstone", st)
+	}
+
+	// The schema CHECK rejects out-of-enum target states.
+	if err := s.Forget(ctx, a.ID, "20260726-alpha", "banana"); err == nil {
+		t.Fatal("Forget to an invalid state should be rejected by the CHECK")
+	}
+
+	if err := s.Forget(ctx, a.ID, "ghost", StateLongTerm); !errors.Is(err, ErrNotFound) {
+		t.Fatalf("Forget(unknown) err = %v, want ErrNotFound", err)
+	}
+}
+
+func TestPinnedGlobalExemption(t *testing.T) {
+	// D-08: a pinned global-recent far past any threshold is never an aging
+	// candidate and is never tombstoned by Forget.
+	s := newTestStore(t)
+	ctx := context.Background()
+	a := mustRegister(t, s, "alice")
+
+	old := time.Now().Unix() - 1_000_000_000
+	insertRaw(t, s, Memory{
+		MemID: "global-recent", AgentID: a.ID, Scope: ScopeGlobal, State: StateRecent,
+		AccessTime: old, CreatedAt: old, Pinned: true,
+	})
+
+	aged, err := s.agingCandidates(ctx, a.ID, 1000)
+	if err != nil {
+		t.Fatalf("agingCandidates: %v", err)
+	}
+	if contains(aged, "global-recent") {
+		t.Fatal("pinned global-recent must be exempt from aging")
+	}
+
+	if err := s.Forget(ctx, a.ID, "global-recent", StateTombstone); err != nil {
+		t.Fatalf("Forget(global): %v", err)
+	}
+	if st, _ := memoryState(t, s, a.ID, "global-recent"); st != StateRecent {
+		t.Fatalf("global-recent was transitioned to %q; must stay recent", st)
+	}
+}
+
+func TestIndexRoundTrip(t *testing.T) {
+	s := newTestStore(t)
+	ctx := context.Background()
+	a := mustRegister(t, s, "alice")
+
+	want := []byte("# long-term memory\n- did a thing\n")
+	if err := s.PutIndex(ctx, a.ID, want); err != nil {
+		t.Fatalf("PutIndex: %v", err)
+	}
+	got, err := s.GetIndex(ctx, a.ID)
+	if err != nil {
+		t.Fatalf("GetIndex: %v", err)
+	}
+	if string(got) != string(want) {
+		t.Fatalf("GetIndex = %q, want %q", got, want)
+	}
+}
+
+func TestCompressReheatStubs(t *testing.T) {
+	s := newTestStore(t)
+	ctx := context.Background()
+	if err := s.Compress(ctx, "a", "m"); !errors.Is(err, ErrNotImplemented) {
+		t.Fatalf("Compress err = %v, want ErrNotImplemented", err)
+	}
+	if err := s.Reheat(ctx, "a", "m"); !errors.Is(err, ErrNotImplemented) {
+		t.Fatalf("Reheat err = %v, want ErrNotImplemented", err)
+	}
+}
+
 func TestOpenIdempotent(t *testing.T) {
 	// W1: opening the same file twice re-applies the schema without error.
 	p := filepath.Join(t.TempDir(), "idx.db")
