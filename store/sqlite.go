@@ -6,6 +6,7 @@ import (
 	_ "embed"
 	"errors"
 	"fmt"
+	"path"
 	"time"
 
 	"github.com/google/uuid"
@@ -14,6 +15,8 @@ import (
 )
 
 var ErrDuplicateName = errors.New("store: agent name already registered")
+
+var _ MemoryStore = (*sqliteStore)(nil)
 
 //go:embed schema.sql
 var schemaSQL string
@@ -201,4 +204,112 @@ func (s *sqliteStore) agingCandidates(ctx context.Context, agentID string, older
 		ids = append(ids, id)
 	}
 	return ids, rows.Err()
+}
+
+func scanMemory(sc interface{ Scan(...any) error }) (Memory, error) {
+	var m Memory
+	var pinned int64
+	var brief, relPath sql.NullString
+	err := sc.Scan(&m.MemID, &m.AgentID, &m.Scope, &m.State,
+		&m.AccessTime, &pinned, &brief, &relPath, &m.CreatedAt)
+	if err != nil {
+		return Memory{}, err
+	}
+	m.Pinned = pinned != 0
+	m.Brief = brief.String
+	m.RelPath = relPath.String
+	return m, nil
+}
+
+func (s *sqliteStore) Get(ctx context.Context, agentID, memID string) (Memory, error) {
+	row := s.db.QueryRowContext(ctx,
+		`SELECT mem_id, agent_id, scope, state, access_time, pinned, brief, rel_path, created_at
+		 FROM memories WHERE agent_id = ? AND mem_id = ?`, agentID, memID)
+	m, err := scanMemory(row)
+	if errors.Is(err, sql.ErrNoRows) {
+		return Memory{}, ErrNotFound
+	}
+	if err != nil {
+		return Memory{}, err
+	}
+	return m, nil
+}
+
+func (s *sqliteStore) List(ctx context.Context, agentID, scope, state string) ([]Memory, error) {
+	q := `SELECT mem_id, agent_id, scope, state, access_time, pinned, brief, rel_path, created_at
+	      FROM memories WHERE agent_id = ?`
+	args := []any{agentID}
+	if scope != "" {
+		q += " AND scope = ?"
+		args = append(args, scope)
+	}
+	if state != "" {
+		q += " AND state = ?"
+		args = append(args, state)
+	}
+	q += " ORDER BY access_time DESC"
+
+	rows, err := s.db.QueryContext(ctx, q, args...)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var out []Memory
+	for rows.Next() {
+		m, err := scanMemory(rows)
+		if err != nil {
+			return nil, err
+		}
+		out = append(out, m)
+	}
+	return out, rows.Err()
+}
+
+func (s *sqliteStore) Forget(ctx context.Context, agentID, memID, state string) error {
+	return s.withTx(ctx, func(tx *sql.Tx) error {
+		res, err := tx.ExecContext(ctx,
+			`UPDATE memories SET state = ?
+			 WHERE agent_id = ? AND mem_id = ? AND pinned = 0 AND scope <> 'global'`,
+			state, agentID, memID)
+		if err != nil {
+			return err
+		}
+		n, err := res.RowsAffected()
+		if err != nil {
+			return err
+		}
+		if n > 0 {
+			return nil
+		}
+		// No row changed: either the memory is missing or it is exempt
+		// (pinned/global-recent, D-08). Exempt rows are a silent no-op.
+		var exists int
+		err = tx.QueryRowContext(ctx,
+			`SELECT 1 FROM memories WHERE agent_id = ? AND mem_id = ?`, agentID, memID).
+			Scan(&exists)
+		if errors.Is(err, sql.ErrNoRows) {
+			return ErrNotFound
+		}
+		return err
+	})
+}
+
+func indexPath(agentID string) string {
+	return path.Join("agents", agentID, "long-term-memory.md")
+}
+
+func (s *sqliteStore) GetIndex(ctx context.Context, agentID string) ([]byte, error) {
+	return s.blobs.GetFolder(ctx, indexPath(agentID))
+}
+
+func (s *sqliteStore) PutIndex(ctx context.Context, agentID string, content []byte) error {
+	return s.blobs.PutFolder(ctx, indexPath(agentID), content)
+}
+
+func (s *sqliteStore) Compress(ctx context.Context, agentID, memID string) error {
+	return ErrNotImplemented
+}
+
+func (s *sqliteStore) Reheat(ctx context.Context, agentID, memID string) error {
+	return ErrNotImplemented
 }
