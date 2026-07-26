@@ -12,5 +12,6 @@ func NewRouter(st store.MemoryStore, bl store.BlobStore) *gin.Engine {
 	r.POST("/agent/register", registerAgent(st))
 	r.POST("/agent/:id/memory", writeMemory(st, bl))
 	r.GET("/agent/:id/init", initBundle(st, bl))
+	r.GET("/agent/:id/remind", remind(st, bl))
 	return r
 }
