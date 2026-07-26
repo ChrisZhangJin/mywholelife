@@ -14,7 +14,7 @@ mywholelife delivers a persistent, self-managing long-term memory system for Cla
 Decimal phases appear between their surrounding integers in numeric order.
 
 - [x] **Phase 0: Skill-Context Validation Spike** - Measure real skill context cost; go/no-go on the skill-as-memory premise (gates everything) (completed 2026-07-26)
-- [ ] **Phase 1: Storage Seam + Schema** - MemoryStore interface + SQLite/FS adapters; access-time as sole lifecycle field; namespacing + pinned global-recent
+- [x] **Phase 1: Storage Seam + Schema** - MemoryStore interface + SQLite/FS adapters; access-time as sole lifecycle field; namespacing + pinned global-recent (completed 2026-07-26)
 - [ ] **Phase 2: Hot Path (Write + Init)** - Curated write + boot bundle; skill-as-memory payload contract; mywholelife client skill + SessionEnd hook
 - [ ] **Phase 3: Cold Tier (Compress + Reheat)** - .tar.zst archival with round-trip verify; remind promotes long-term back to recent; single structured index
 - [ ] **Phase 4: Dream Consolidation + Forgetting** - Server-side aging engine: consolidate, maintain the index, graduated tombstone→soft-delete, atomic/resumable
@@ -69,7 +69,7 @@ Plans:
 **Wave 2** *(blocked on Wave 1 completion; two parallel plans, disjoint files)*
 
 - [x] 01-02-PLAN.md — Implement the full sqliteStore index surface (agents, memory CRUD, in-tx access-time, pinned exemption, YYYYMMDD collision, stubs) + tests + seam-enforcement test
-- [ ] 01-03-PLAN.md — Implement localBlobStore FS adapter (D-09 layout, rel_path confinement, path-traversal rejection) + tests
+- [x] 01-03-PLAN.md — Implement localBlobStore FS adapter (D-09 layout, rel_path confinement, path-traversal rejection) + tests
 
 ### Phase 2: Hot Path (Write + Init)
 
@@ -124,7 +124,7 @@ Phases execute in numeric order: 0 → 1 → 2 → 3 → 4
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 0. Skill-Context Validation Spike | 3/3 | Complete    | 2026-07-26 |
-| 1. Storage Seam + Schema | 2/3 | In Progress|  |
+| 1. Storage Seam + Schema | 3/3 | Complete   | 2026-07-26 |
 | 2. Hot Path (Write + Init) | 0/TBD | Not started | - |
 | 3. Cold Tier (Compress + Reheat) | 0/TBD | Not started | - |
 | 4. Dream Consolidation + Forgetting | 0/TBD | Not started | - |
