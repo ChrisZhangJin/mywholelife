@@ -1,0 +1,6 @@
+shape,N,resident_tokens,total_window_tokens,cc_version,notes
+baseline,0,,,,zero dummy skills — isolates per-skill delta
+naive,20,,,,primary go/no-go anchor (D-06); note catalog-only vs catalog+body (#14882 signal)
+naive,50,,,,upper stress point for the curve
+proxy,20,,,,shape-2 workaround anchor vs naive N=20 (VAL-02 fallback)
+proxy,50,,,,optional — record only if convenient
