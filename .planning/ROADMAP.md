@@ -41,7 +41,7 @@ Plans:
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-- [ ] 00-02-PLAN.md — Capture ground-truth `/context` anchor readings (baseline, naive N=20/50, proxy N=20) on CC 2.1.211
+- [x] 00-02-PLAN.md — Capture ground-truth `/context` anchor readings (baseline, naive N=20/50, proxy N=20) on CC 2.1.211
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
@@ -114,7 +114,7 @@ Phases execute in numeric order: 0 → 1 → 2 → 3 → 4
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 0. Skill-Context Validation Spike | 1/3 | In Progress|  |
+| 0. Skill-Context Validation Spike | 2/3 | In Progress|  |
 | 1. Storage Seam + Schema | 0/TBD | Not started | - |
 | 2. Hot Path (Write + Init) | 0/TBD | Not started | - |
 | 3. Cold Tier (Compress + Reheat) | 0/TBD | Not started | - |

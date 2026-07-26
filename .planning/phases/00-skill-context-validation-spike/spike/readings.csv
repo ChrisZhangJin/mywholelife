@@ -1,6 +1,6 @@
 shape,N,resident_tokens,total_window_tokens,cc_version,notes
-baseline,0,,,,zero dummy skills — isolates per-skill delta
-naive,20,,,,primary go/no-go anchor (D-06); note catalog-only vs catalog+body (#14882 signal)
-naive,50,,,,upper stress point for the curve
-proxy,20,,,,shape-2 workaround anchor vs naive N=20 (VAL-02 fallback)
-proxy,50,,,,optional — record only if convenient
+baseline,0,8000,1000000,2.1.211,Skills-segment tokens; 136 pre-existing real skills + 0 dummy; fresh Opus-4.7 1M session
+naive,20,14700,1000000,2.1.211,Skills-segment; +6.7k vs baseline = 335 tok/skill; CATALOG-ONLY (~1/3 of full-body est 1005) -> #14882 NOT reproduced, progressive disclosure holds
+naive,50,24900,1000000,2.1.211,Skills-segment; +16.9k vs baseline = 338 tok/skill; consistent with catalog-only (no body load)
+proxy,20,,,2.1.211,not measured -- naive already passes the 10% line so the proxy fallback is unnecessary (VAL-02 documented from estimator data instead)
+proxy,50,,,2.1.211,optional; not measured
