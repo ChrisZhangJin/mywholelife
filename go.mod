@@ -5,6 +5,7 @@ go 1.25.9
 require (
 	github.com/gin-gonic/gin v1.12.0
 	github.com/google/uuid v1.6.0
+	github.com/klauspost/compress v1.19.1
 	github.com/spf13/cobra v1.10.2
 	modernc.org/sqlite v1.54.0
 )
