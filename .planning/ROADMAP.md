@@ -88,7 +88,7 @@ Plans:
 Plans:
 **Wave 1**
 
-- [ ] 02-01-PLAN.md — Server foundation: cobra CLI (serve + dream stub) + env Config + Gin router + register-first `POST /agent/register`
+- [x] 02-01-PLAN.md — Server foundation: cobra CLI (serve + dream stub) + env Config + Gin router + register-first `POST /agent/register`
 
 **Wave 2** *(blocked on Wave 1; two parallel plans, disjoint files)*
 
@@ -134,6 +134,6 @@ Phases execute in numeric order: 0 → 1 → 2 → 3 → 4
 |-------|----------------|--------|-----------|
 | 0. Skill-Context Validation Spike | 3/3 | Complete    | 2026-07-26 |
 | 1. Storage Seam + Schema | 3/3 | Complete    | 2026-07-26 |
-| 2. Hot Path (Write + Init) | 0/3 | Not started | - |
+| 2. Hot Path (Write + Init) | 1/3 | In Progress|  |
 | 3. Cold Tier (Compress + Reheat) | 0/TBD | Not started | - |
 | 4. Dream Consolidation + Forgetting | 0/TBD | Not started | - |

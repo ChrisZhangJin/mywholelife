@@ -27,7 +27,7 @@ Requirements for initial release. Each maps to roadmap phases. The core loop (wr
 
 ### Write / Capture
 
-- [ ] **WRITE-01**: An agent can push agent-curated memory via `POST /agent/{id}/memory`; a write lands as `recent`
+- [x] **WRITE-01**: An agent can push agent-curated memory via `POST /agent/{id}/memory`; a write lands as `recent`
 - [ ] **WRITE-02**: The `mywholelife` skill installs a `SessionEnd` hook that triggers the curated upload; the hook is dumb transport only (curation happens in the agent)
 
 ### Init / Boot
@@ -102,7 +102,7 @@ Which phases cover which requirements. (Finalized by roadmapper — matches ROAD
 | STORE-05 | Phase 1 | Complete |
 | STORE-06 | Phase 1 | Complete |
 | SKILL-01 | Phase 2 | Pending |
-| WRITE-01 | Phase 2 | Pending |
+| WRITE-01 | Phase 2 | Complete |
 | WRITE-02 | Phase 2 | Pending |
 | INIT-01 | Phase 2 | Pending |
 | INIT-02 | Phase 2 | Pending |

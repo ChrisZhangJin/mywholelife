@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: verifying
-stopped_at: Completed 01-02-PLAN.md
-last_updated: "2026-07-26T16:54:33.269Z"
+status: executing
+stopped_at: Phase 2 context gathered (--auto)
+last_updated: "2026-07-26T17:29:59.035Z"
 last_activity: 2026-07-26
 progress:
   total_phases: 5
   completed_phases: 2
-  total_plans: 6
-  completed_plans: 6
+  total_plans: 9
+  completed_plans: 7
   percent: 40
 ---
 
@@ -21,22 +21,22 @@ progress:
 See: .planning/PROJECT.md (updated 2026-07-25)
 
 **Core value:** An agent can leave, come back, and correctly recall who it is and what it has done — with the right project context reassembled at the right time, without drowning it in irrelevant history.
-**Current focus:** Phase 1 — Storage Seam + Schema
+**Current focus:** Phase 2 — Hot Path (Write + Init)
 
 ## Current Position
 
-Phase: 1 (Storage Seam + Schema) — EXECUTING
-Plan: 3 of 3
-Status: Phase complete — ready for verification
+Phase: 2 (Hot Path (Write + Init)) — EXECUTING
+Plan: 2 of 3
+Status: Ready to execute
 Last activity: 2026-07-26
 
-Progress: [██████████] 100%
+Progress: [████████░░] 78%
 
 ## Performance Metrics
 
 **Velocity:**
 
-- Total plans completed: 3
+- Total plans completed: 6
 - Average duration: -
 - Total execution time: 0 hours
 
@@ -45,6 +45,7 @@ Progress: [██████████] 100%
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
 | 0 | 3 | - | - |
+| 1 | 3 | - | - |
 
 **Recent Trend:**
 
@@ -58,6 +59,7 @@ Progress: [██████████] 100%
 | Phase 01 P01 | 2min | 2 tasks | 5 files |
 | Phase 01 P02 | 14min | 3 tasks | 5 files |
 | Phase 01 P03 | 7min | 1 tasks | 3 files |
+| Phase 02 P01 | 12min | 2 tasks | 8 files |
 
 ## Accumulated Context
 
@@ -82,6 +84,9 @@ Recent decisions affecting current work:
 - [Phase ?]: [Phase 01-02]: sqliteStore fully implements MemoryStore (conformance-asserted); access_time stamped in-tx on every write; pinned global-recent exempt from aging (pinned=0 AND scope<>'global')
 - [Phase ?]: [Phase 01-02]: YYYYMMDD-projectName keys allocated collision-free in-tx (check-then-suffix -2/-3); STORE-02 seam enforced by an automated go/parser import-confinement test
 - [Phase ?]: [Phase 01-03]: localBlobStore confines every rel_path via resolve() (clean + reject absolute/..-escape, ErrUnsafePath); disk half of STORE-02, /data/ gitignored
+- [Phase ?]: [Phase 02-01]: register-first (OQ-1) — dedicated POST /agent/register mints a server UUID via store.RegisterAgent; no endpoint accepts a caller-supplied id
+- [Phase ?]: [Phase 02-01]: register returns the raw UUID as text/plain (D-10) so the client parses it jq-free; 409 on duplicate name, 400 on missing X-Agent-Name
+- [Phase ?]: [Phase 02-01]: server package thin over store interfaces — NewRouter(store.MemoryStore, store.BlobStore); gin v1.12.0 + cobra v1.10.2 pinned; seam confinement test stays green
 
 ### Pending Todos
 
@@ -103,6 +108,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-26T16:54:22.134Z
-Stopped at: Completed 01-02-PLAN.md
+Last session: 2026-07-26T17:29:31.509Z
+Stopped at: Phase 2 context gathered (--auto)
 Resume file: None
