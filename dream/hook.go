@@ -28,7 +28,9 @@ type llmHookGen struct {
 	model  string
 }
 
-func newLLMHookGen(baseURL, apiKey, model string) *llmHookGen {
+// NewLLMHookGen builds the production HookGen (D-03): an OpenAI-compatible
+// client pointed at baseURL (default a Chinese provider) using model.
+func NewLLMHookGen(baseURL, apiKey, model string) HookGen {
 	cfg := openai.DefaultConfig(apiKey)
 	cfg.BaseURL = baseURL
 	return &llmHookGen{client: openai.NewClientWithConfig(cfg), model: model}
