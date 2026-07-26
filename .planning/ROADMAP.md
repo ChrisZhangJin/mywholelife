@@ -68,7 +68,7 @@ Plans:
 
 **Wave 2** *(blocked on Wave 1 completion; two parallel plans, disjoint files)*
 
-- [ ] 01-02-PLAN.md — Implement the full sqliteStore index surface (agents, memory CRUD, in-tx access-time, pinned exemption, YYYYMMDD collision, stubs) + tests + seam-enforcement test
+- [x] 01-02-PLAN.md — Implement the full sqliteStore index surface (agents, memory CRUD, in-tx access-time, pinned exemption, YYYYMMDD collision, stubs) + tests + seam-enforcement test
 - [ ] 01-03-PLAN.md — Implement localBlobStore FS adapter (D-09 layout, rel_path confinement, path-traversal rejection) + tests
 
 ### Phase 2: Hot Path (Write + Init)
@@ -124,7 +124,7 @@ Phases execute in numeric order: 0 → 1 → 2 → 3 → 4
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 0. Skill-Context Validation Spike | 3/3 | Complete    | 2026-07-26 |
-| 1. Storage Seam + Schema | 1/3 | In Progress|  |
+| 1. Storage Seam + Schema | 2/3 | In Progress|  |
 | 2. Hot Path (Write + Init) | 0/TBD | Not started | - |
 | 3. Cold Tier (Compress + Reheat) | 0/TBD | Not started | - |
 | 4. Dream Consolidation + Forgetting | 0/TBD | Not started | - |

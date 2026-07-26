@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Phase 1 context gathered (--auto)
-last_updated: "2026-07-26T16:32:49.009Z"
+stopped_at: Completed 01-02-PLAN.md
+last_updated: "2026-07-26T16:48:59.183Z"
 last_activity: 2026-07-26
 progress:
   total_phases: 5
   completed_phases: 1
   total_plans: 6
-  completed_plans: 4
+  completed_plans: 5
   percent: 20
 ---
 
@@ -26,11 +26,11 @@ See: .planning/PROJECT.md (updated 2026-07-25)
 ## Current Position
 
 Phase: 1 (Storage Seam + Schema) — EXECUTING
-Plan: 2 of 3
+Plan: 3 of 3
 Status: Ready to execute
 Last activity: 2026-07-26
 
-Progress: [███████░░░] 67%
+Progress: [████████░░] 83%
 
 ## Performance Metrics
 
@@ -56,6 +56,7 @@ Progress: [███████░░░] 67%
 | Phase 00 P02 | 6min | 2 tasks | 1 files |
 | Phase 00 P03 | 3min | 2 tasks | 3 files |
 | Phase 01 P01 | 2min | 2 tasks | 5 files |
+| Phase 01 P02 | 14min | 3 tasks | 5 files |
 
 ## Accumulated Context
 
@@ -77,6 +78,8 @@ Recent decisions affecting current work:
 - [Phase 00]: Safe ceiling N=298 @1M / 59 @200k; T1 knob target N~20 (D-06); adopted shape = naive skill folder (D-07); proxy + merged recent-brief.md fallbacks pre-measured (VAL-02)
 - [Phase ?]: [Phase 01-01]: Storage seam established — modernc.org/sqlite blank-import confined to store/sqlite.go; MemoryStore/BlobStore contracts frozen for Phases 2-4
 - [Phase ?]: [Phase 01-01]: DSN _pragma= params + SetMaxOpenConns(1) + withTx (BEGIN IMMEDIATE) adopted for pool-wide pragma correctness and transactional access_time (D-07)
+- [Phase ?]: [Phase 01-02]: sqliteStore fully implements MemoryStore (conformance-asserted); access_time stamped in-tx on every write; pinned global-recent exempt from aging (pinned=0 AND scope<>'global')
+- [Phase ?]: [Phase 01-02]: YYYYMMDD-projectName keys allocated collision-free in-tx (check-then-suffix -2/-3); STORE-02 seam enforced by an automated go/parser import-confinement test
 
 ### Pending Todos
 
@@ -98,6 +101,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-26T16:32:23.197Z
-Stopped at: Phase 1 context gathered (--auto)
+Last session: 2026-07-26T16:48:58.607Z
+Stopped at: Completed 01-02-PLAN.md
 Resume file: None

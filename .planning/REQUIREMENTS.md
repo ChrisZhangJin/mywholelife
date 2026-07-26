@@ -14,12 +14,12 @@ Requirements for initial release. Each maps to roadmap phases. The core loop (wr
 
 ### Storage & Identity
 
-- [ ] **STORE-01**: An agent can be registered and looked up by name + unique ID; the ID is the entire scope model for single-tenant MVP
+- [x] **STORE-01**: An agent can be registered and looked up by name + unique ID; the ID is the entire scope model for single-tenant MVP
 - [x] **STORE-02**: All storage access (disk, index, compression) goes through a single `MemoryStore` interface — nothing outside the store layer touches adapters
 - [x] **STORE-03**: The index persists, per memory, its agent, memId, access-time, state ∈ {recent, long-term, tombstone}, and the path to its folder or `.tar.zst`
-- [ ] **STORE-04**: All lifecycle logic reads `access-time` (last touched) as the sole timestamp; it is updated in the same transaction on every access path (write, init, remind)
-- [ ] **STORE-05**: `global recent` memory (durable knowledge/methods) is pinned and exempt from aging/forgetting
-- [ ] **STORE-06**: Project memory is namespaced as `YYYYMMDD-projectName`, guaranteeing no name collisions
+- [x] **STORE-04**: All lifecycle logic reads `access-time` (last touched) as the sole timestamp; it is updated in the same transaction on every access path (write, init, remind)
+- [x] **STORE-05**: `global recent` memory (durable knowledge/methods) is pinned and exempt from aging/forgetting
+- [x] **STORE-06**: Project memory is namespaced as `YYYYMMDD-projectName`, guaranteeing no name collisions
 
 ### Skill-as-Memory Contract
 
@@ -95,12 +95,12 @@ Which phases cover which requirements. (Finalized by roadmapper — matches ROAD
 |-------------|-------|--------|
 | VAL-01 | Phase 0 | Complete |
 | VAL-02 | Phase 0 | Complete |
-| STORE-01 | Phase 1 | Pending |
+| STORE-01 | Phase 1 | Complete |
 | STORE-02 | Phase 1 | Complete |
 | STORE-03 | Phase 1 | Complete |
-| STORE-04 | Phase 1 | Pending |
-| STORE-05 | Phase 1 | Pending |
-| STORE-06 | Phase 1 | Pending |
+| STORE-04 | Phase 1 | Complete |
+| STORE-05 | Phase 1 | Complete |
+| STORE-06 | Phase 1 | Complete |
 | SKILL-01 | Phase 2 | Pending |
 | WRITE-01 | Phase 2 | Pending |
 | WRITE-02 | Phase 2 | Pending |
