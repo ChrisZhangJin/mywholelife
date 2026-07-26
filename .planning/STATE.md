@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: executing
+status: verifying
 stopped_at: Phase 2 context gathered (--auto)
-last_updated: "2026-07-26T17:39:20.540Z"
+last_updated: "2026-07-26T17:48:58.587Z"
 last_activity: 2026-07-26
 progress:
   total_phases: 5
-  completed_phases: 2
+  completed_phases: 3
   total_plans: 9
-  completed_plans: 8
-  percent: 40
+  completed_plans: 9
+  percent: 60
 ---
 
 # Project State
@@ -27,10 +27,10 @@ See: .planning/PROJECT.md (updated 2026-07-25)
 
 Phase: 2 (Hot Path (Write + Init)) — EXECUTING
 Plan: 3 of 3
-Status: Ready to execute
+Status: Phase complete — ready for verification
 Last activity: 2026-07-26
 
-Progress: [█████████░] 89%
+Progress: [██████████] 100%
 
 ## Performance Metrics
 
@@ -61,6 +61,7 @@ Progress: [█████████░] 89%
 | Phase 01 P03 | 7min | 1 tasks | 3 files |
 | Phase 02 P01 | 12min | 2 tasks | 8 files |
 | Phase 02 P02 | 18min | 3 tasks | 7 files |
+| Phase 02 P03 | 12min | 2 tasks | 6 files |
 
 ## Accumulated Context
 
@@ -91,6 +92,8 @@ Recent decisions affecting current work:
 - [Phase ?]: [Phase 02-02]: W1 fix — global mem_id is agent-scoped (global-<id>); memories.mem_id is a plain PK so a shared 'global' constant lets one agent's Put ON CONFLICT overwrite another's row
 - [Phase ?]: [Phase 02-02]: single-.tar-blob per skill folder (PutFolder=os.WriteFile); buffer-then-validate ingest with traversal + archive-bomb caps; streamed zip out with headers before first write
 - [Phase ?]: [Phase 02-02]: server computes project mem_id=YYYYMMDD-project (OQ-3), client sends only ?project=; long-term-memory.md kept as a stub slot for Phase 4
+- [Phase 02-03]: client is bash+curl+tar/unzip only, jq optional-only; agent.json parsed jq-free via grep/sed; register name sanitized to the server allowlist
+- [Phase 02-03]: SessionEnd hook is dumb transport (outbox -> push.sh -> clear); install.sh registers the correct session_end.sh path per mode (W3: CLAUDE_PROJECT_DIR local vs absolute HOME for --global), idempotent, never clobbers settings.json
 
 ### Pending Todos
 
@@ -112,6 +115,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-26T17:38:54.696Z
+Last session: 2026-07-26T17:48:17.005Z
 Stopped at: Phase 2 context gathered (--auto)
 Resume file: None

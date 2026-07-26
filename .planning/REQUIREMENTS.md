@@ -28,12 +28,12 @@ Requirements for initial release. Each maps to roadmap phases. The core loop (wr
 ### Write / Capture
 
 - [x] **WRITE-01**: An agent can push agent-curated memory via `POST /agent/{id}/memory`; a write lands as `recent`
-- [ ] **WRITE-02**: The `mywholelife` skill installs a `SessionEnd` hook that triggers the curated upload; the hook is dumb transport only (curation happens in the agent)
+- [x] **WRITE-02**: The `mywholelife` skill installs a `SessionEnd` hook that triggers the curated upload; the hook is dumb transport only (curation happens in the agent)
 
 ### Init / Boot
 
 - [x] **INIT-01**: `GET /agent/{id}/init` returns a single downloadable bundle of `global recent` + each recent project skill + the `long-term-memory.md` index
-- [ ] **INIT-02**: An agent can unpack the init bundle into its memory directory and `.claude/skills/`, reconstituting working memory into the native locations Claude Code reads
+- [x] **INIT-02**: An agent can unpack the init bundle into its memory directory and `.claude/skills/`, reconstituting working memory into the native locations Claude Code reads
 
 ### Recall / Reheat
 
@@ -60,7 +60,7 @@ Requirements for initial release. Each maps to roadmap phases. The core loop (wr
 
 ### Client Distribution
 
-- [ ] **CLIENT-01**: The `mywholelife` skill documents the service URL and init/remind usage and installs the completion hook, using only dependency-free tooling (`bash`/`curl`/`tar`) so it runs in any Claude Code environment
+- [x] **CLIENT-01**: The `mywholelife` skill documents the service URL and init/remind usage and installs the completion hook, using only dependency-free tooling (`bash`/`curl`/`tar`) so it runs in any Claude Code environment
 
 ## v2 Requirements
 
@@ -103,10 +103,10 @@ Which phases cover which requirements. (Finalized by roadmapper — matches ROAD
 | STORE-06 | Phase 1 | Complete |
 | SKILL-01 | Phase 2 | Complete |
 | WRITE-01 | Phase 2 | Complete |
-| WRITE-02 | Phase 2 | Pending |
+| WRITE-02 | Phase 2 | Complete |
 | INIT-01 | Phase 2 | Complete |
-| INIT-02 | Phase 2 | Pending |
-| CLIENT-01 | Phase 2 | Pending |
+| INIT-02 | Phase 2 | Complete |
+| CLIENT-01 | Phase 2 | Complete |
 | COMP-01 | Phase 3 | Pending |
 | COMP-02 | Phase 3 | Pending |
 | RECALL-01 | Phase 3 | Pending |

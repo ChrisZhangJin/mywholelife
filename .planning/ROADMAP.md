@@ -15,7 +15,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 
 - [x] **Phase 0: Skill-Context Validation Spike** - Measure real skill context cost; go/no-go on the skill-as-memory premise (gates everything) (completed 2026-07-26)
 - [x] **Phase 1: Storage Seam + Schema** - MemoryStore interface + SQLite/FS adapters; access-time as sole lifecycle field; namespacing + pinned global-recent (completed 2026-07-26)
-- [ ] **Phase 2: Hot Path (Write + Init)** - Curated write + boot bundle; skill-as-memory payload contract; mywholelife client skill + SessionEnd hook
+- [x] **Phase 2: Hot Path (Write + Init)** - Curated write + boot bundle; skill-as-memory payload contract; mywholelife client skill + SessionEnd hook (completed 2026-07-26)
 - [ ] **Phase 3: Cold Tier (Compress + Reheat)** - .tar.zst archival with round-trip verify; remind promotes long-term back to recent; single structured index
 - [ ] **Phase 4: Dream Consolidation + Forgetting** - Server-side aging engine: consolidate, maintain the index, graduated tombstone→soft-delete, atomic/resumable
 
@@ -93,7 +93,7 @@ Plans:
 **Wave 2** *(blocked on Wave 1; two parallel plans, disjoint files)*
 
 - [x] 02-02-PLAN.md — Write + init hot loop: bundle package (tar validate/brief/zip transcode) + `POST /memory` + `GET /init` handlers + round-trip/404/traversal tests
-- [ ] 02-03-PLAN.md — `mywholelife` client skill: SKILL.md + init/push/session_end/install scripts + SessionEnd hook (dependency-free bash/curl/tar)
+- [x] 02-03-PLAN.md — `mywholelife` client skill: SKILL.md + init/push/session_end/install scripts + SessionEnd hook (dependency-free bash/curl/tar)
 
 ### Phase 3: Cold Tier (Compress + Reheat)
 
@@ -134,6 +134,6 @@ Phases execute in numeric order: 0 → 1 → 2 → 3 → 4
 |-------|----------------|--------|-----------|
 | 0. Skill-Context Validation Spike | 3/3 | Complete    | 2026-07-26 |
 | 1. Storage Seam + Schema | 3/3 | Complete    | 2026-07-26 |
-| 2. Hot Path (Write + Init) | 2/3 | In Progress|  |
+| 2. Hot Path (Write + Init) | 3/3 | Complete   | 2026-07-26 |
 | 3. Cold Tier (Compress + Reheat) | 0/TBD | Not started | - |
 | 4. Dream Consolidation + Forgetting | 0/TBD | Not started | - |
