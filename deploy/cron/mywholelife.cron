@@ -1,0 +1,7 @@
+# /etc/cron.d/mywholelife — nightly dream job.
+#
+# Cron does NOT inherit the container's runtime environment, so dream.env
+# (a gitignored, 0600 secrets file — see dream.env.example) must be sourced
+# explicitly on the crontab line. A non-zero exit means a failed validateIndex
+# gate (D-06); check the log.
+0 3 * * * root . /app/dream.env; /app/mywholelife dream --agent "$MWL_AGENT_ID" >> /var/log/mywholelife-dream.log 2>&1
