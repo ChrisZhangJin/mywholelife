@@ -1,6 +1,6 @@
 ---
 name: mywholelife
-description: Persistent long-term memory for Claude Code. Run scripts/init.sh at session start to register this agent (first run) and reload recent project + global memories into ~/.mywholelife/memory/ and .claude/skills/. During a session, curate what is worth keeping by writing a Claude Code skill folder into ~/.mywholelife/outbox/<project>/; the SessionEnd hook tars each staged folder, POSTs it to the server, then clears the outbox. The service URL comes from MWL_SERVICE_URL or ~/.mywholelife/agent.json. Run scripts/install.sh once to copy this skill and register the SessionEnd hook. Dependency-free (bash + curl + tar/unzip). A remind command is a forthcoming Phase-3 addition.
+description: Persistent long-term memory for Claude Code. Run scripts/init.sh at session start to register this agent (first run) and reload recent project + global memories into ~/.mywholelife/memory/ and .claude/skills/. During a session, curate what is worth keeping by writing a Claude Code skill folder into ~/.mywholelife/outbox/<project>/; the SessionEnd hook tars each staged folder, POSTs it to the server, then clears the outbox. The service URL comes from MWL_SERVICE_URL or ~/.mywholelife/agent.json. Run scripts/install.sh once to copy this skill and register the SessionEnd hook. Dependency-free (bash + curl + tar/unzip). Run scripts/remind.sh <memId> to recall a long-term memory back into working context.
 ---
 
 # mywholelife
@@ -66,7 +66,26 @@ To push manually:
 scripts/push.sh <project> [scope]   # scope defaults to project
 ```
 
-## Forthcoming
+## Recall a long-term memory (remind)
 
-`remind` (server-side recall + compression) arrives in Phase 3 and is not part of
-this skill yet.
+Memories that have aged out of "recent" are compressed server-side into
+long-term storage and listed in `~/.mywholelife/memory/long-term-memory.md`
+(one `- <name> | <hook> | <memId>` line per memory, `memId` last). To bring one
+back into working context:
+
+```bash
+scripts/remind.sh <memId>              # unpack into project-local .claude/skills/<memId>/
+scripts/remind.sh --global <memId>     # unpack into ~/.claude/skills/<memId>/
+```
+
+`remind.sh` downloads `GET /agent/<id>/remind?mem=<memId>`, which promotes the
+memory back to `recent` (access-time = now) on the server, and unpacks the
+returned `.tar` into the skill folder above.
+
+Mid-session reload story (D-05, RECALL-03): on the target Claude Code version a
+newly-created skill subdirectory is not reliably auto-activated mid-session
+(anthropics/claude-code#31559), so `remind.sh` also prints the reinstalled
+`SKILL.md` body to stdout — read it directly for immediate use this session.
+Run `/reload-skills` (CC 2.1.152+) to make the recalled skill model-invocable
+without leaving the session, or restart Claude Code; either way it loads
+normally next session from the skills dir, same restart caveat as `init.sh`.
