@@ -104,6 +104,12 @@ None - no external service configuration required.
 - Plan 03's go/no-go has data-backed figures for all three shapes, including the merged fallback (VAL-02), not just descriptions.
 - Real skills (code-review, gsd-*, etc.) verified untouched after every teardown; at least one non-`spike-dummy-*` skill dir survives `--clean`.
 
+## Self-Check: PASSED
+
+- Files verified present: spike/gen-skills.sh, spike/estimate.sh, spike/curve.csv, 00-01-SUMMARY.md
+- Commits verified in log: b75ce75, 30ad9eb, cf98126
+- Safety verified: 136 non-spike-dummy skill dirs intact, 0 spike-dummy dirs remaining after teardown
+
 ---
 *Phase: 00-skill-context-validation-spike*
 *Completed: 2026-07-26*
