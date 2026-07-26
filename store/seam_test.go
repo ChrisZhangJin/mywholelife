@@ -32,10 +32,10 @@ func moduleRoot(t *testing.T) string {
 	}
 }
 
-// TestDriverConfinedToStore enforces the STORE-02/D-01 seam: the SQLite driver
+// TestSeamDriverConfinement enforces the STORE-02/D-01 seam: the SQLite driver
 // module may only be imported from files under store/, and exactly one file
 // blank-imports the driver to register it.
-func TestDriverConfinedToStore(t *testing.T) {
+func TestSeamDriverConfinement(t *testing.T) {
 	root := moduleRoot(t)
 	fset := token.NewFileSet()
 
