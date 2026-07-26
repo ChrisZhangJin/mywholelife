@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: executing
-stopped_at: Phase 3 context gathered (--auto)
-last_updated: "2026-07-26T18:29:15.373Z"
+status: verifying
+stopped_at: Completed 03-03-PLAN.md
+last_updated: "2026-07-26T18:33:41.873Z"
 last_activity: 2026-07-26
 progress:
   total_phases: 5
-  completed_phases: 3
+  completed_phases: 4
   total_plans: 12
-  completed_plans: 11
-  percent: 60
+  completed_plans: 12
+  percent: 80
 ---
 
 # Project State
@@ -27,10 +27,10 @@ See: .planning/PROJECT.md (updated 2026-07-25)
 
 Phase: 3 (Cold Tier (Compress + Reheat)) — EXECUTING
 Plan: 3 of 3
-Status: Ready to execute
+Status: Phase complete — ready for verification
 Last activity: 2026-07-26
 
-Progress: [█████████░] 92%
+Progress: [██████████] 100%
 
 ## Performance Metrics
 
@@ -65,6 +65,7 @@ Progress: [█████████░] 92%
 | Phase 02 P03 | 12min | 2 tasks | 6 files |
 | Phase 03 P01 | 6min | 2 tasks | 8 files |
 | Phase 03 P02 | 9min | 2 tasks | 3 files |
+| Phase 03 P03 | 5min | 2 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -101,6 +102,8 @@ Recent decisions affecting current work:
 - [Phase 03]: zstd confined to store/zstd.go using one-shot EncodeAll/DecodeAll with a 32MB decompression cap (D-01 seam)
 - [Phase 03-02]: remind handler stays thin over store.Reheat — validKey(id)+validKey(mem) gate before any store call; access_time bump owned by the store (seam intact, no compressor import in server/)
 - [Phase 03-02]: RECALL-01/02 + INDEX-01 verified end-to-end via httptest — GET /remind returns application/x-tar, promotes to recent, init reflects the compressed line then drops it after reheat (D-04/D-08)
+- [Phase 03-03]: remind.sh stdout-echoes the reinstalled SKILL.md body unconditionally (D-05) before hinting /reload-skills or restart -- the version-independent guarantee against CC's new-skill-subdir watch gap (#31559)
+- [Phase 03-03]: memId argument sanitized to the server allowlist charset before use as a path + URL query value, mirroring init.sh's NAME sanitize (T-03-08)
 
 ### Pending Todos
 
@@ -122,6 +125,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-26T18:28:48.509Z
-Stopped at: Phase 3 context gathered (--auto)
+Last session: 2026-07-26T18:33:41.859Z
+Stopped at: Completed 03-03-PLAN.md
 Resume file: None

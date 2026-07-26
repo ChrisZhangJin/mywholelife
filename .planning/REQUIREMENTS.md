@@ -39,7 +39,7 @@ Requirements for initial release. Each maps to roadmap phases. The core loop (wr
 
 - [x] **RECALL-01**: `GET /agent/{id}/remind?mem={memId}` returns the targeted long-term memory's skill folder (decompressed)
 - [x] **RECALL-02**: A successful remind promotes the memory to `recent` by setting its access-time to now (the only operation that reverses the time arrow)
-- [ ] **RECALL-03**: remind reinstalls the skill folder and the mid-session reload path (how the reinstalled skill becomes active) is explicitly defined and verified
+- [x] **RECALL-03**: remind reinstalls the skill folder and the mid-session reload path (how the reinstalled skill becomes active) is explicitly defined and verified
 
 ### Long-Term Index
 
@@ -111,7 +111,7 @@ Which phases cover which requirements. (Finalized by roadmapper — matches ROAD
 | COMP-02 | Phase 3 | Complete |
 | RECALL-01 | Phase 3 | Complete |
 | RECALL-02 | Phase 3 | Complete |
-| RECALL-03 | Phase 3 | Pending |
+| RECALL-03 | Phase 3 | Complete |
 | INDEX-01 | Phase 3 | Complete |
 | INDEX-02 | Phase 4 | Pending |
 | DREAM-01 | Phase 4 | Pending |

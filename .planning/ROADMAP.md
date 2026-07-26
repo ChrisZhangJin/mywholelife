@@ -16,7 +16,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 0: Skill-Context Validation Spike** - Measure real skill context cost; go/no-go on the skill-as-memory premise (gates everything) (completed 2026-07-26)
 - [x] **Phase 1: Storage Seam + Schema** - MemoryStore interface + SQLite/FS adapters; access-time as sole lifecycle field; namespacing + pinned global-recent (completed 2026-07-26)
 - [x] **Phase 2: Hot Path (Write + Init)** - Curated write + boot bundle; skill-as-memory payload contract; mywholelife client skill + SessionEnd hook (completed 2026-07-26)
-- [ ] **Phase 3: Cold Tier (Compress + Reheat)** - .tar.zst archival with round-trip verify; remind promotes long-term back to recent; single structured index
+- [x] **Phase 3: Cold Tier (Compress + Reheat)** - .tar.zst archival with round-trip verify; remind promotes long-term back to recent; single structured index (completed 2026-07-26)
 - [ ] **Phase 4: Dream Consolidation + Forgetting** - Server-side aging engine: consolidate, maintain the index, graduated tombstone→soft-delete, atomic/resumable
 
 ## Phase Details
@@ -120,7 +120,7 @@ Plans:
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
-- [ ] 03-03-PLAN.md — Client `remind.sh` (untar + stdout echo + /reload-skills hint) + SKILL.md remind docs and mid-session reload story
+- [x] 03-03-PLAN.md — Client `remind.sh` (untar + stdout echo + /reload-skills hint) + SKILL.md remind docs and mid-session reload story
 
 ### Phase 4: Dream Consolidation + Forgetting
 
@@ -147,5 +147,5 @@ Phases execute in numeric order: 0 → 1 → 2 → 3 → 4
 | 0. Skill-Context Validation Spike | 3/3 | Complete    | 2026-07-26 |
 | 1. Storage Seam + Schema | 3/3 | Complete    | 2026-07-26 |
 | 2. Hot Path (Write + Init) | 3/3 | Complete    | 2026-07-26 |
-| 3. Cold Tier (Compress + Reheat) | 2/3 | In Progress|  |
+| 3. Cold Tier (Compress + Reheat) | 3/3 | Complete   | 2026-07-26 |
 | 4. Dream Consolidation + Forgetting | 0/TBD | Not started | - |
