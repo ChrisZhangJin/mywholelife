@@ -13,7 +13,7 @@ mywholelife delivers a persistent, self-managing long-term memory system for Cla
 
 Decimal phases appear between their surrounding integers in numeric order.
 
-- [ ] **Phase 0: Skill-Context Validation Spike** - Measure real skill context cost; go/no-go on the skill-as-memory premise (gates everything)
+- [x] **Phase 0: Skill-Context Validation Spike** - Measure real skill context cost; go/no-go on the skill-as-memory premise (gates everything) (completed 2026-07-26)
 - [ ] **Phase 1: Storage Seam + Schema** - MemoryStore interface + SQLite/FS adapters; access-time as sole lifecycle field; namespacing + pinned global-recent
 - [ ] **Phase 2: Hot Path (Write + Init)** - Curated write + boot bundle; skill-as-memory payload contract; mywholelife client skill + SessionEnd hook
 - [ ] **Phase 3: Cold Tier (Compress + Reheat)** - .tar.zst archival with round-trip verify; remind promotes long-term back to recent; single structured index
@@ -45,7 +45,7 @@ Plans:
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
-- [ ] 00-03-PLAN.md — Calibrate the curve, decide go/no-go + safe ceiling N + adopted shape, write 00-SPIKE-FINDINGS.md (incl. merged fallback design)
+- [x] 00-03-PLAN.md — Calibrate the curve, decide go/no-go + safe ceiling N + adopted shape, write 00-SPIKE-FINDINGS.md (incl. merged fallback design)
 
 ### Phase 1: Storage Seam + Schema
 
@@ -114,7 +114,7 @@ Phases execute in numeric order: 0 → 1 → 2 → 3 → 4
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 0. Skill-Context Validation Spike | 2/3 | In Progress|  |
+| 0. Skill-Context Validation Spike | 3/3 | Complete   | 2026-07-26 |
 | 1. Storage Seam + Schema | 0/TBD | Not started | - |
 | 2. Hot Path (Write + Init) | 0/TBD | Not started | - |
 | 3. Cold Tier (Compress + Reheat) | 0/TBD | Not started | - |
