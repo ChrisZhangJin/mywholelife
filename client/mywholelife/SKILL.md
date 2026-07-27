@@ -1,6 +1,6 @@
 ---
 name: mywholelife
-description: Persistent long-term memory for Claude Code. Run scripts/init.sh at session start to register this agent (first run) and reload recent project + global memories into ~/.mywholelife/memory/ and .claude/skills/. During a session, curate what is worth keeping by writing a Claude Code skill folder into ~/.mywholelife/outbox/<project>/; the SessionEnd hook tars each staged folder, POSTs it to the server, then clears the outbox. The service URL comes from MWL_SERVICE_URL or ~/.mywholelife/agent.json. Run scripts/install.sh once to copy this skill and register the SessionEnd hook. Dependency-free (bash + curl + tar/unzip). Run scripts/remind.sh <memId> to recall a long-term memory back into working context.
+description: Long-term memory for Claude Code, persisted as project skill folders on a mywholelife server. Run scripts/install.sh once to copy the skill and register the SessionEnd hook. Run scripts/init.sh at session start to register this agent and reload recent memories into ~/.mywholelife/memory/ and .claude/skills/. During a session, curate memory by writing a skill folder into ~/.mywholelife/outbox/<project>/; SessionEnd tars and POSTs it to the server. scripts/remind.sh <memId> recalls a long-term memory back into working context.
 ---
 
 # mywholelife

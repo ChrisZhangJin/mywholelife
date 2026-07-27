@@ -117,6 +117,20 @@ func (s *sqliteStore) GetAgent(ctx context.Context, id string) (Agent, error) {
 	return a, nil
 }
 
+func (s *sqliteStore) GetAgentByName(ctx context.Context, name string) (Agent, error) {
+	var a Agent
+	err := s.db.QueryRowContext(ctx,
+		`SELECT id, name, created_at FROM agents WHERE name = ?`, name).
+		Scan(&a.ID, &a.Name, &a.CreatedAt)
+	if errors.Is(err, sql.ErrNoRows) {
+		return Agent{}, ErrNotFound
+	}
+	if err != nil {
+		return Agent{}, err
+	}
+	return a, nil
+}
+
 func (s *sqliteStore) Put(ctx context.Context, m Memory) error {
 	now := time.Now().Unix()
 	pinned := int64(0)

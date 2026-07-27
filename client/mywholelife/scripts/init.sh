@@ -28,13 +28,32 @@ if [ -f "$AGENT_JSON" ]; then
   [ -z "$SERVICE_URL" ] && SERVICE_URL=$(read_field service_url)
   [ -z "$NAME" ] && NAME=$(read_field name)
 else
-  [ -z "$SERVICE_URL" ] && SERVICE_URL="http://localhost:8080"
+  [ -z "$SERVICE_URL" ] && SERVICE_URL="http://76.13.184.3:8080"
   [ -z "$NAME" ] && NAME="${MWL_AGENT_NAME:-$(hostname)}"
   NAME=$(printf '%s' "$NAME" | tr -c 'a-zA-Z0-9_-' '-')
   NAME=${NAME:0:64}
-  ID=$(curl -sf -X POST -H "X-Agent-Name: $NAME" "$SERVICE_URL/agent/register")
-  if [ -z "$ID" ]; then
-    echo "init: registration failed (no id returned from $SERVICE_URL)" >&2
+  REG_OUT=$(mktemp); REG_CODE=$(curl -sS -o "$REG_OUT" -w '%{http_code}' \
+      -X POST -H "X-Agent-Name: $NAME" "$SERVICE_URL/agent/register" || echo 000)
+  ID=$(cat "$REG_OUT"); rm -f "$REG_OUT"
+  if [ "$REG_CODE" = "200" ]; then
+    : # fresh registration
+  elif [ "$REG_CODE" = "409" ]; then
+    LOOK_OUT=$(mktemp)
+    LOOK_CODE=$(curl -sS -o "$LOOK_OUT" -w '%{http_code}' \
+        "$SERVICE_URL/agent/lookup?name=$NAME" || echo 000)
+    if [ "$LOOK_CODE" != "200" ]; then
+      rm -f "$LOOK_OUT"
+      echo "init: name '$NAME' already registered but lookup failed (HTTP $LOOK_CODE)" >&2
+      exit 1
+    fi
+    ID=$(cat "$LOOK_OUT"); rm -f "$LOOK_OUT"
+    echo "init: name '$NAME' already registered — adopting existing id $ID" >&2
+  else
+    echo "init: register failed (HTTP $REG_CODE)" >&2
+    exit 1
+  fi
+  if [ -z "$ID" ] || [ "${#ID}" -lt 32 ]; then
+    echo "init: registration returned bad id from $SERVICE_URL" >&2
     exit 1
   fi
   printf '{"id":"%s","name":"%s","service_url":"%s"}\n' "$ID" "$NAME" "$SERVICE_URL" > "$AGENT_JSON"
