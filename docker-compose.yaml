@@ -1,0 +1,29 @@
+services:
+  server:
+    build: .
+    image: mywholelife:1.0.0
+    ports:
+      - "8080:8080"
+    environment:
+      MWL_ADDR: ":8080"
+      MWL_DATA_ROOT: /data
+      MWL_DB_PATH: /data/mywholelife.db
+    volumes:
+      - mwl-data:/data
+    restart: unless-stopped
+
+  # One-shot dream maintenance job (not started by default; see profiles).
+  # Mirrors the host cron model in deploy/cron/mywholelife.cron — invoke with:
+  #   docker compose run --rm dream --agent <agent-id>
+  # Reads secrets/thresholds from deploy/cron/dream.env (operator-provided;
+  # copy deploy/cron/dream.env.example, fill in, chmod 0600 — never committed).
+  dream:
+    image: mywholelife:1.0.0
+    profiles: ["tools"]
+    volumes:
+      - mwl-data:/data
+    env_file: deploy/cron/dream.env
+    entrypoint: ["/mywholelife", "dream"]
+
+volumes:
+  mwl-data:

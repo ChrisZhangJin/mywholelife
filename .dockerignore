@@ -1,0 +1,15 @@
+# Keep the build context lean: only go.mod/go.sum + Go source packages
+# needed to build ./cmd/mywholelife are shipped to the daemon.
+.git
+.gitignore
+.planning
+data/
+docs/
+client/
+deploy/cron/dream.env
+**/dream.env
+*.md
+**/*_test.go
+Dockerfile
+docker-compose.yaml
+.dockerignore
