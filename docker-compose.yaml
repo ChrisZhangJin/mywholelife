@@ -1,3 +1,8 @@
+# Data is a bind mount owned by the image's distroless nonroot uid (65532) so
+# SQLite can create/open the DB deterministically. Before first `up`, run:
+#   mkdir -p data && sudo chown -R 65532:65532 data
+# (A named volume's priming ownership is unreliable across hosts for a nonroot
+# image and caused "unable to open database file (14)" crash loops.)
 services:
   server:
     build: .
@@ -9,7 +14,7 @@ services:
       MWL_DATA_ROOT: /data
       MWL_DB_PATH: /data/mywholelife.db
     volumes:
-      - mwl-data:/data
+      - ./data:/data
     restart: unless-stopped
 
   # One-shot dream maintenance job (not started by default; see profiles).
@@ -21,9 +26,8 @@ services:
     image: mywholelife:1.0.0
     profiles: ["tools"]
     volumes:
-      - mwl-data:/data
-    env_file: deploy/cron/dream.env
+      - ./data:/data
+    env_file:
+      - path: deploy/cron/dream.env
+        required: false
     entrypoint: ["/mywholelife", "dream"]
-
-volumes:
-  mwl-data:
