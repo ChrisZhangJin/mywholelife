@@ -20,8 +20,11 @@ func safeEntryName(name string) bool {
 		return false
 	}
 	clean := path.Clean(name)
-	if clean == "." || clean == ".." {
+	if clean == ".." {
 		return false
+	}
+	if clean == "." {
+		return true
 	}
 	for _, el := range strings.Split(clean, "/") {
 		if el == ".." {

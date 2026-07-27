@@ -72,8 +72,8 @@ func overCountTar(t *testing.T) []byte {
 }
 
 func TestSafeEntryName(t *testing.T) {
-	good := []string{"SKILL.md", "assets/x.md", "a/b/c.txt"}
-	bad := []string{"", "/etc/passwd", "../evil", "a/../../b", "..", "."}
+	good := []string{"SKILL.md", "assets/x.md", "a/b/c.txt", ".", "./"}
+	bad := []string{"", "/etc/passwd", "../evil", "a/../../b", ".."}
 	for _, n := range good {
 		if !safeEntryName(n) {
 			t.Errorf("safeEntryName(%q) = false, want true", n)

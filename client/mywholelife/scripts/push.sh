@@ -30,7 +30,7 @@ if [ ! -d "$OUTBOX/$PROJECT" ]; then
   exit 0
 fi
 
-tar -C "$OUTBOX" -cf - "$PROJECT" \
+tar -C "$OUTBOX/$PROJECT" -cf - . \
   | curl -sf --data-binary @- \
       -H 'Content-Type: application/x-tar' \
       "$SERVICE_URL/agent/$ID/memory?scope=$SCOPE&project=$PROJECT"
