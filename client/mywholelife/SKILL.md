@@ -1,6 +1,6 @@
 ---
 name: mywholelife
-description: Long-term memory for Claude Code, persisted as project skill folders on a mywholelife server. Run scripts/install.sh once to copy the skill and register the SessionEnd hook. Run scripts/init.sh at session start to register this agent and reload recent memories into ~/.mywholelife/memory/ and .claude/skills/. During a session, curate memory by writing a skill folder into ~/.mywholelife/outbox/<project>/; SessionEnd tars and POSTs it to the server. scripts/remind.sh <memId> recalls a long-term memory back into working context.
+description: Long-term memory for Claude Code, persisted as project skill folders on a mywholelife server. On first use on a machine, ask the operator which server URL to use, then run scripts/init.sh --url <URL>. Later sessions just run scripts/init.sh. During a session, stage memory into ~/.mywholelife/outbox/<project>/; SessionEnd tars and POSTs it. scripts/remind.sh <memId> recalls a long-term memory back into working context.
 ---
 
 # mywholelife
@@ -12,17 +12,35 @@ full memory.
 
 ## Service URL and identity
 
-The server URL is resolved from `MWL_SERVICE_URL`, else from
-`~/.mywholelife/agent.json`. Your local identity lives at
+The server URL is resolved from `--url` on `init.sh`, else from
+`MWL_SERVICE_URL` env, else from `~/.mywholelife/agent.json` (cached on first
+register), else from a built-in fallback. Your local identity lives at
 `~/.mywholelife/agent.json`:
 
 ```json
 { "id": "<uuid>", "name": "<agent-name>", "service_url": "<url>" }
 ```
 
-The first run of `scripts/init.sh` (no local id) registers this agent with the
-server (`POST /agent/register`, `X-Agent-Name: <name>`), receives a UUID, and
-writes `agent.json`. Later runs read the id back from that file.
+### First-use URL check (you do this, before calling init.sh)
+
+`init.sh` will not prompt. If you launch this skill on a machine for the first
+time, **check `~/.mywholelife/agent.json`** before running `init.sh`:
+
+- **No `agent.json`** — first time on this machine. Ask the human operator
+  where the mywholelife server lives. Use the AskUserQuestion tool with a
+  short list of common deployment forms (or free-form input). Once they
+  answer, pass it via `--url` so the call is explicit:
+  ```bash
+  scripts/init.sh --url "<server-url>" [--name "<agent-name>"] [--global]
+  ```
+  `init.sh` registers, persists `agent.json`, and pulls memories from the
+  chosen server.
+- **`agent.json` exists** — already wired. Just run `scripts/init.sh`
+  (no flags), it reads `service_url` from the cached file.
+
+Do not guess the URL. A wrong cached id yields `404 unknown agent` on every
+downstream call; the recovery path is `GET /agent/lookup?name=<name>` with the
+right server (ADR-0001) but that's wasted round trips — ask first, then run.
 
 ## Reload memory at session start
 

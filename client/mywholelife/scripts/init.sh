@@ -28,7 +28,7 @@ if [ -f "$AGENT_JSON" ]; then
   [ -z "$SERVICE_URL" ] && SERVICE_URL=$(read_field service_url)
   [ -z "$NAME" ] && NAME=$(read_field name)
 else
-  [ -z "$SERVICE_URL" ] && SERVICE_URL="http://76.13.184.3:8080"
+  [ -z "$SERVICE_URL" ] && SERVICE_URL="http://106.53.207.230:8088"
   [ -z "$NAME" ] && NAME="${MWL_AGENT_NAME:-$(hostname)}"
   NAME=$(printf '%s' "$NAME" | tr -c 'a-zA-Z0-9_-' '-')
   NAME=${NAME:0:64}
