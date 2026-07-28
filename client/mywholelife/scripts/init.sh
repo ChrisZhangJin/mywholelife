@@ -76,6 +76,27 @@ mkdir -p "$MEMORY_DIR" "$SKILLS_DIR"
 [ -d "$tmp/x/memory" ] && cp -R "$tmp/x/memory/." "$MEMORY_DIR/"
 [ -d "$tmp/x/skills" ] && cp -R "$tmp/x/skills/." "$SKILLS_DIR/"
 
+# Promote global memory into Claude Code's skill catalog: each memory/global/...
+# tree gets mirrored under $SKILLS_DIR/_global/ so its SKILL.md participates
+# in progressive disclosure on every session that opens after this unzip
+# (ADR-0002). Mirror under $MEMORY_DIR/global/ is preserved for operators
+# who grep it manually.
+if [ -d "$tmp/x/memory/global" ]; then
+  GLOBAL_SKILLS_DIR="$SKILLS_DIR/_global"
+  mkdir -p "$GLOBAL_SKILLS_DIR"
+  found=0
+  while IFS= read -r md; do
+    rel="${md#$tmp/x/memory/global/}"      # e.g. "SKILL.md" or "alice/SKILL.md"
+    dest_dir="$GLOBAL_SKILLS_DIR/$(dirname "$rel")"
+    mkdir -p "$dest_dir"
+    cp "$md" "$dest_dir/$(basename "$rel")"
+    found=1
+  done < <(find "$tmp/x/memory/global" -type f -name SKILL.md)
+  if [ "$found" = 1 ] && [ "$NEW_SKILLS_DIR" = 0 ]; then
+    echo "init: global memory also routed to $GLOBAL_SKILLS_DIR/" >&2
+  fi
+fi
+
 echo "init: reloaded memory into $MEMORY_DIR and skills into $SKILLS_DIR"
 if [ "$NEW_SKILLS_DIR" -eq 1 ]; then
   echo "init: $SKILLS_DIR was newly created — restart Claude Code for these skills to load." >&2
