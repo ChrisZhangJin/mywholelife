@@ -243,6 +243,45 @@ func TestProjectMemIDCollision(t *testing.T) {
 	}
 }
 
+// TestRelPathTracksMemIDSuffix pins the user-reported bug: when an
+// upsert collides with an existing project memID and nextProjectMemID
+// appends `-2`, the storage path must follow the new memID, not the
+// original. Today the rel_path is computed by the caller and handed in
+// unchanged, so the new row shadows the old one on disk.
+func TestRelPathTracksMemIDSuffix(t *testing.T) {
+	s := newTestStore(t)
+	ctx := context.Background()
+	a := mustRegister(t, s, "rp-test")
+
+	base := "20260728-mywholelife"
+	rel := "agents/" + a.ID + "/projects/" + base + ".tar"
+
+	for i := 0; i < 2; i++ {
+		if err := s.Put(ctx, Memory{MemID: base, AgentID: a.ID, Scope: ScopeProject, RelPath: rel}); err != nil {
+			t.Fatalf("Put #%d: %v", i, err)
+		}
+	}
+
+	rows, err := s.List(ctx, a.ID, ScopeProject, StateRecent)
+	if err != nil {
+		t.Fatalf("list: %v", err)
+	}
+	if len(rows) != 2 {
+		t.Fatalf("want 2 rows, got %d: %+v", len(rows), rows)
+	}
+	seen := map[string]string{}
+	for _, r := range rows {
+		seen[r.MemID] = r.RelPath
+	}
+	baseFile := filepath.Base(rel)
+	if seen[base] != rel {
+		t.Errorf("orig row rel = %q, want %q", seen[base], rel)
+	}
+	if got := seen[base+"-2"]; got != "" && filepath.Base(got) == baseFile {
+		t.Errorf("-2 row rel_path still uses old memID: %q (must NOT match baseFile %q)", got, baseFile)
+	}
+}
+
 func contains(xs []string, x string) bool {
 	for _, v := range xs {
 		if v == x {

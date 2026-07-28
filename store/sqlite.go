@@ -8,6 +8,7 @@ import (
 	"errors"
 	"fmt"
 	"path"
+	"path/filepath"
 	"strings"
 	"time"
 
@@ -139,10 +140,18 @@ func (s *sqliteStore) Put(ctx context.Context, m Memory) error {
 	}
 	return s.withTx(ctx, func(tx *sql.Tx) error {
 		memID := m.MemID
+		relPath := m.RelPath
 		if m.Scope == ScopeProject {
 			id, err := nextProjectMemID(ctx, tx, m.AgentID, m.MemID)
 			if err != nil {
 				return err
+			}
+			if id != memID {
+				// memID collision appended a suffix; keep rel_path in sync so
+				// each row points at a distinct blob. caller-supplied path
+				// is trusted at the scheme boundary; here we only swap the
+				// file's basename.
+				relPath = renamePathBase(relPath, id)
 			}
 			memID = id
 		}
@@ -152,9 +161,46 @@ func (s *sqliteStore) Put(ctx context.Context, m Memory) error {
 			 ON CONFLICT(mem_id) DO UPDATE SET
 			   state=excluded.state, access_time=excluded.access_time,
 			   brief=excluded.brief, rel_path=excluded.rel_path`,
-			memID, m.AgentID, m.Scope, StateRecent, now, pinned, m.Brief, m.RelPath, now)
+			memID, m.AgentID, m.Scope, StateRecent, now, pinned, m.Brief, relPath, now)
 		return err
 	})
+}
+
+// renamePathBase returns relPath with its final path segment rewritten to
+// memID+".tar". Pure string-level rewrite; it does not touch filesystem.
+// The scheme is conventional ("agents/<id>/projects/<memId>.tar" for
+// project, "agents/<id>/global.tar" for global); if the caller passes
+// a non-conforming path we keep the original verbatim rather than guess.
+func renamePathBase(relPath, memID string) string {
+	dir := filepath.Dir(relPath)
+	base := filepath.Base(relPath)
+	ext := filepath.Ext(base)
+	if ext == "" {
+		ext = ".tar"
+	}
+	return filepath.Join(dir, memID+ext)
+}
+
+// ReserveProjectMemID asks the store for the memID it WOULD assign for a
+// project write of `base` for the given agent. It performs the same
+// collision scan as the in-Put path nextProjectMemID — but read-only on
+// its own transaction, so the caller can use the result to choose a blob
+// path BEFORE writing the blob and calling Put. Callers MUST then use
+// the returned id as MemID in the subsequent Put, or risk a stale
+// reservation (e.g. someone else inserts the same base between this call
+// and Put). The risk window is small and the value is still correct for
+// typical single-writer agents; the trade is deliberate.
+func (s *sqliteStore) ReserveProjectMemID(ctx context.Context, agentID, base string) (string, error) {
+	var id string
+	err := s.withTx(ctx, func(tx *sql.Tx) error {
+		got, err := nextProjectMemID(ctx, tx, agentID, base)
+		if err != nil {
+			return err
+		}
+		id = got
+		return nil
+	})
+	return id, err
 }
 
 // nextProjectMemID returns the first free YYYYMMDD-projectName key for the

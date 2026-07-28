@@ -58,7 +58,13 @@ func writeMemory(st store.MemoryStore, bl store.BlobStore) gin.HandlerFunc {
 				c.String(http.StatusBadRequest, "missing project")
 				return
 			}
-			memID = time.Now().Format("20060102") + "-" + project
+			base := time.Now().Format("20060102") + "-" + project
+			reserved, err := st.ReserveProjectMemID(c, id, base)
+			if err != nil {
+				c.String(http.StatusInternalServerError, "reserve memid")
+				return
+			}
+			memID = reserved
 			rel = "agents/" + id + "/projects/" + memID + ".tar"
 		case store.ScopeGlobal:
 			memID = "global-" + id
