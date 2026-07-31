@@ -118,14 +118,38 @@ func TestWriteThenInitRoundTrip(t *testing.T) {
 	if _, ok := entries["memory/long-term-memory.md"]; !ok {
 		t.Fatalf("init zip missing memory/long-term-memory.md; got %v", keys(entries))
 	}
-	found := false
-	for name := range entries {
-		if strings.HasPrefix(name, "skills/") && strings.HasSuffix(name, "-demo/SKILL.md") {
-			found = true
+	// Project memID is the project name itself (no date prefix), so the init
+	// bundle lays the memory out at exactly skills/<project>/SKILL.md.
+	if _, ok := entries["skills/demo/SKILL.md"]; !ok {
+		t.Fatalf("init zip missing skills/demo/SKILL.md; got %v", keys(entries))
+	}
+}
+
+// TestProjectRepushIsSingleEntry is the HTTP-level guard for the upsert fix:
+// posting the same project twice must yield ONE skills/<project> entry in the
+// init bundle, never a duplicate `-2` folder.
+func TestProjectRepushIsSingleEntry(t *testing.T) {
+	r, _ := setup(t)
+	id := register(t, r, "carol")
+	mk := func(v string) []byte {
+		return makeTar(t, map[string]string{
+			"SKILL.md": "---\nname: demo\ndescription: " + v + "\n---\n" + v + "\n",
+		})
+	}
+	for _, v := range []string{"v1", "v2"} {
+		if code := postMemory(t, r, id, "?scope=project&project=demo", mk(v)); code != http.StatusNoContent {
+			t.Fatalf("post %s: status %d, want 204", v, code)
 		}
 	}
-	if !found {
-		t.Fatalf("init zip missing skills/*-demo/SKILL.md; got %v", keys(entries))
+	_, entries := getInit(t, r, id)
+	n := 0
+	for name := range entries {
+		if strings.HasPrefix(name, "skills/") && strings.HasSuffix(name, "/SKILL.md") {
+			n++
+		}
+	}
+	if n != 1 {
+		t.Fatalf("re-push must produce exactly one skills entry, got %d: %v", n, keys(entries))
 	}
 }
 

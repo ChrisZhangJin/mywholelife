@@ -43,7 +43,6 @@ type MemoryStore interface {
 	RegisterAgent(ctx context.Context, name string) (Agent, error)
 	GetAgent(ctx context.Context, id string) (Agent, error)
 	GetAgentByName(ctx context.Context, name string) (Agent, error)
-	ReserveProjectMemID(ctx context.Context, agentID, base string) (string, error)
 	Put(ctx context.Context, m Memory) error
 	Get(ctx context.Context, agentID, memID string) (Memory, error)
 	List(ctx context.Context, agentID, scope, state string) ([]Memory, error)

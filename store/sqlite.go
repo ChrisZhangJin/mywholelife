@@ -8,7 +8,6 @@ import (
 	"errors"
 	"fmt"
 	"path"
-	"path/filepath"
 	"strings"
 	"time"
 
@@ -139,102 +138,20 @@ func (s *sqliteStore) Put(ctx context.Context, m Memory) error {
 		pinned = 1
 	}
 	return s.withTx(ctx, func(tx *sql.Tx) error {
-		memID := m.MemID
-		relPath := m.RelPath
-		if m.Scope == ScopeProject {
-			id, err := nextProjectMemID(ctx, tx, m.AgentID, m.MemID)
-			if err != nil {
-				return err
-			}
-			if id != memID {
-				// memID collision appended a suffix; keep rel_path in sync so
-				// each row points at a distinct blob. caller-supplied path
-				// is trusted at the scheme boundary; here we only swap the
-				// file's basename.
-				relPath = renamePathBase(relPath, id)
-			}
-			memID = id
-		}
+		// memID is caller-assigned and stable (project name for project scope,
+		// "global-<id>" for global). A repeated write to the same memID upserts
+		// in place — the row is UPDATED, never duplicated. created_at is left
+		// untouched on update so it records first-seen; access_time is bumped to
+		// now to reheat recency.
 		_, err := tx.ExecContext(ctx,
 			`INSERT INTO memories(mem_id,agent_id,scope,state,access_time,pinned,brief,rel_path,created_at)
 			 VALUES(?,?,?,?,?,?,?,?,?)
 			 ON CONFLICT(mem_id) DO UPDATE SET
 			   state=excluded.state, access_time=excluded.access_time,
 			   brief=excluded.brief, rel_path=excluded.rel_path`,
-			memID, m.AgentID, m.Scope, StateRecent, now, pinned, m.Brief, relPath, now)
+			m.MemID, m.AgentID, m.Scope, StateRecent, now, pinned, m.Brief, m.RelPath, now)
 		return err
 	})
-}
-
-// renamePathBase returns relPath with its final path segment rewritten to
-// memID+".tar". Pure string-level rewrite; it does not touch filesystem.
-// The scheme is conventional ("agents/<id>/projects/<memId>.tar" for
-// project, "agents/<id>/global.tar" for global); if the caller passes
-// a non-conforming path we keep the original verbatim rather than guess.
-func renamePathBase(relPath, memID string) string {
-	dir := filepath.Dir(relPath)
-	base := filepath.Base(relPath)
-	ext := filepath.Ext(base)
-	if ext == "" {
-		ext = ".tar"
-	}
-	return filepath.Join(dir, memID+ext)
-}
-
-// ReserveProjectMemID asks the store for the memID it WOULD assign for a
-// project write of `base` for the given agent. It performs the same
-// collision scan as the in-Put path nextProjectMemID — but read-only on
-// its own transaction, so the caller can use the result to choose a blob
-// path BEFORE writing the blob and calling Put. Callers MUST then use
-// the returned id as MemID in the subsequent Put, or risk a stale
-// reservation (e.g. someone else inserts the same base between this call
-// and Put). The risk window is small and the value is still correct for
-// typical single-writer agents; the trade is deliberate.
-func (s *sqliteStore) ReserveProjectMemID(ctx context.Context, agentID, base string) (string, error) {
-	var id string
-	err := s.withTx(ctx, func(tx *sql.Tx) error {
-		got, err := nextProjectMemID(ctx, tx, agentID, base)
-		if err != nil {
-			return err
-		}
-		id = got
-		return nil
-	})
-	return id, err
-}
-
-// nextProjectMemID returns the first free YYYYMMDD-projectName key for the
-// agent, appending -2/-3/... on same-day collisions (D-06). The free key is
-// computed inside the write transaction (check-then-suffix, never a PK-error
-// retry).
-func nextProjectMemID(ctx context.Context, tx *sql.Tx, agentID, base string) (string, error) {
-	rows, err := tx.QueryContext(ctx,
-		`SELECT mem_id FROM memories WHERE agent_id = ? AND (mem_id = ? OR mem_id LIKE ?)`,
-		agentID, base, base+"-%")
-	if err != nil {
-		return "", err
-	}
-	defer rows.Close()
-	taken := map[string]bool{}
-	for rows.Next() {
-		var id string
-		if err := rows.Scan(&id); err != nil {
-			return "", err
-		}
-		taken[id] = true
-	}
-	if err := rows.Err(); err != nil {
-		return "", err
-	}
-	if !taken[base] {
-		return base, nil
-	}
-	for n := 2; ; n++ {
-		cand := fmt.Sprintf("%s-%d", base, n)
-		if !taken[cand] {
-			return cand, nil
-		}
-	}
 }
 
 func (s *sqliteStore) Touch(ctx context.Context, agentID, memID string) error {

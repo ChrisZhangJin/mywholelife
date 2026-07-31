@@ -4,7 +4,6 @@ import (
 	"errors"
 	"io"
 	"net/http"
-	"time"
 
 	"github.com/gin-gonic/gin"
 
@@ -58,13 +57,13 @@ func writeMemory(st store.MemoryStore, bl store.BlobStore) gin.HandlerFunc {
 				c.String(http.StatusBadRequest, "missing project")
 				return
 			}
-			base := time.Now().Format("20060102") + "-" + project
-			reserved, err := st.ReserveProjectMemID(c, id, base)
-			if err != nil {
-				c.String(http.StatusInternalServerError, "reserve memid")
-				return
-			}
-			memID = reserved
+			// memID is the project name itself — stable and date-independent.
+			// A re-push of the same project therefore lands on the same memID
+			// and UPDATES in place (store.Put upserts via ON CONFLICT), instead
+			// of forking a new dated/`-N`-suffixed row every time. Lifecycle
+			// (recency/aging) is tracked by the access_time/created_at columns,
+			// so the date does not need to live in the key.
+			memID = project
 			rel = "agents/" + id + "/projects/" + memID + ".tar"
 		case store.ScopeGlobal:
 			memID = "global-" + id

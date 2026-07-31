@@ -222,12 +222,16 @@ func TestAccessTimeGovernsAging(t *testing.T) {
 	}
 }
 
-func TestProjectMemIDCollision(t *testing.T) {
+// TestProjectRepushUpserts pins the new contract (was TestProjectMemIDCollision):
+// project memIDs are stable, so re-pushing the SAME project memID updates the
+// existing row in place instead of forking base/-2/-3. Three writes of one
+// memID must leave exactly one row.
+func TestProjectRepushUpserts(t *testing.T) {
 	s := newTestStore(t)
 	ctx := context.Background()
 	a := mustRegister(t, s, "alice")
 
-	base := "20260726-widgets"
+	base := "widgets"
 	for i := 0; i < 3; i++ {
 		if err := s.Put(ctx, Memory{MemID: base, AgentID: a.ID, Scope: ScopeProject}); err != nil {
 			t.Fatalf("Put #%d: %v", i, err)
@@ -235,50 +239,39 @@ func TestProjectMemIDCollision(t *testing.T) {
 	}
 
 	got := listMemIDs(t, s, a.ID)
-	want := []string{base, base + "-2", base + "-3"}
-	for _, w := range want {
-		if !contains(got, w) {
-			t.Fatalf("missing collision-suffixed key %q; have %v", w, got)
-		}
+	if len(got) != 1 || got[0] != base {
+		t.Fatalf("re-push must upsert to a single row %q; have %v", base, got)
 	}
 }
 
-// TestRelPathTracksMemIDSuffix pins the user-reported bug: when an
-// upsert collides with an existing project memID and nextProjectMemID
-// appends `-2`, the storage path must follow the new memID, not the
-// original. Today the rel_path is computed by the caller and handed in
-// unchanged, so the new row shadows the old one on disk.
-func TestRelPathTracksMemIDSuffix(t *testing.T) {
+// TestProjectRepushUpdatesBriefAndPath verifies the upsert actually refreshes
+// mutable fields (brief, rel_path) on a repeated write of the same memID —
+// the "update it" half of the merge-then-update workflow — while collapsing to
+// one row (no `-2` shadow row on disk).
+func TestProjectRepushUpdatesBriefAndPath(t *testing.T) {
 	s := newTestStore(t)
 	ctx := context.Background()
 	a := mustRegister(t, s, "rp-test")
 
-	base := "20260728-mywholelife"
+	base := "mywholelife"
 	rel := "agents/" + a.ID + "/projects/" + base + ".tar"
 
-	for i := 0; i < 2; i++ {
-		if err := s.Put(ctx, Memory{MemID: base, AgentID: a.ID, Scope: ScopeProject, RelPath: rel}); err != nil {
-			t.Fatalf("Put #%d: %v", i, err)
-		}
+	if err := s.Put(ctx, Memory{MemID: base, AgentID: a.ID, Scope: ScopeProject, Brief: "v1", RelPath: rel}); err != nil {
+		t.Fatalf("Put v1: %v", err)
+	}
+	if err := s.Put(ctx, Memory{MemID: base, AgentID: a.ID, Scope: ScopeProject, Brief: "v2-merged", RelPath: rel}); err != nil {
+		t.Fatalf("Put v2: %v", err)
 	}
 
 	rows, err := s.List(ctx, a.ID, ScopeProject, StateRecent)
 	if err != nil {
 		t.Fatalf("list: %v", err)
 	}
-	if len(rows) != 2 {
-		t.Fatalf("want 2 rows, got %d: %+v", len(rows), rows)
+	if len(rows) != 1 {
+		t.Fatalf("want exactly 1 row after re-push, got %d: %+v", len(rows), rows)
 	}
-	seen := map[string]string{}
-	for _, r := range rows {
-		seen[r.MemID] = r.RelPath
-	}
-	baseFile := filepath.Base(rel)
-	if seen[base] != rel {
-		t.Errorf("orig row rel = %q, want %q", seen[base], rel)
-	}
-	if got := seen[base+"-2"]; got != "" && filepath.Base(got) == baseFile {
-		t.Errorf("-2 row rel_path still uses old memID: %q (must NOT match baseFile %q)", got, baseFile)
+	if rows[0].MemID != base || rows[0].Brief != "v2-merged" || rows[0].RelPath != rel {
+		t.Fatalf("upsert did not update in place: %+v", rows[0])
 	}
 }
 

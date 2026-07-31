@@ -22,7 +22,7 @@ RUN mkdir -p /out/data
 
 # --- runtime: distroless static (ships CA certs for the dream HTTPS LLM call) ---
 FROM gcr.io/distroless/static:nonroot
-LABEL org.opencontainers.image.version=1.0.0
+LABEL org.opencontainers.image.version=1.2.0
 
 COPY --from=builder /out/mywholelife /mywholelife
 COPY --from=builder --chown=65532:65532 /out/data /data
